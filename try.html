@@ -1,0 +1,2288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Disruption-Aware Logistics Control Room</title>
+  <style>
+    /* ==========================================================================
+       CSS VARIABLES & THEME DEFINITIONS
+       ========================================================================== */
+    :root {
+      --bg-page: #0b0f19;
+      --bg-surface: #111827;
+      --bg-surface-elevated: #1f2937;
+      --bg-card: rgba(31, 41, 55, 0.75);
+      --bg-card-hover: rgba(55, 65, 81, 0.85);
+      --border: rgba(75, 85, 99, 0.45);
+      --border-focus: #3b82f6;
+
+      --text-main: #f9fafb;
+      --text-muted: #9ca3af;
+      --text-dim: #6b7280;
+
+      --color-ontime: #10b981;
+      --color-ontime-bg: rgba(16, 185, 129, 0.15);
+      --color-ontime-border: rgba(16, 185, 129, 0.35);
+
+      --color-atrisk: #f59e0b;
+      --color-atrisk-bg: rgba(245, 158, 11, 0.15);
+      --color-atrisk-border: rgba(245, 158, 11, 0.35);
+
+      --color-late: #ef4444;
+      --color-late-bg: rgba(239, 68, 68, 0.15);
+      --color-late-border: rgba(239, 68, 68, 0.35);
+
+      --color-novehicle: #9ca3af;
+      --color-novehicle-bg: rgba(156, 163, 175, 0.15);
+      --color-novehicle-border: rgba(156, 163, 175, 0.35);
+
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --primary-glow: rgba(59, 130, 246, 0.3);
+
+      --success-glow: rgba(16, 185, 129, 0.3);
+      --danger-glow: rgba(239, 68, 68, 0.35);
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 14px;
+      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+      --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.35);
+      --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
+    }
+
+    [data-theme="light"] {
+      --bg-page: #f3f4f6;
+      --bg-surface: #ffffff;
+      --bg-surface-elevated: #f9fafb;
+      --bg-card: rgba(255, 255, 255, 0.95);
+      --bg-card-hover: #f3f4f6;
+      --border: #e5e7eb;
+      --border-focus: #2563eb;
+
+      --text-main: #111827;
+      --text-muted: #4b5563;
+      --text-dim: #9ca3af;
+
+      --color-ontime: #059669;
+      --color-ontime-bg: rgba(5, 150, 105, 0.12);
+      --color-ontime-border: rgba(5, 150, 105, 0.3);
+
+      --color-atrisk: #d97706;
+      --color-atrisk-bg: rgba(217, 119, 6, 0.12);
+      --color-atrisk-border: rgba(217, 119, 6, 0.3);
+
+      --color-late: #dc2626;
+      --color-late-bg: rgba(220, 38, 38, 0.12);
+      --color-late-border: rgba(220, 38, 38, 0.3);
+
+      --color-novehicle: #4b5563;
+      --color-novehicle-bg: rgba(75, 85, 99, 0.1);
+      --color-novehicle-border: rgba(75, 85, 99, 0.25);
+
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --primary-glow: rgba(37, 99, 235, 0.2);
+      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+      --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+      --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+    }
+
+    @media (prefers-color-scheme: light) {
+      :root:not([data-theme="dark"]) {
+        --bg-page: #f3f4f6;
+        --bg-surface: #ffffff;
+        --bg-surface-elevated: #f9fafb;
+        --bg-card: rgba(255, 255, 255, 0.95);
+        --bg-card-hover: #f3f4f6;
+        --border: #e5e7eb;
+        --border-focus: #2563eb;
+
+        --text-main: #111827;
+        --text-muted: #4b5563;
+        --text-dim: #9ca3af;
+
+        --color-ontime: #059669;
+        --color-ontime-bg: rgba(5, 150, 105, 0.12);
+        --color-ontime-border: rgba(5, 150, 105, 0.3);
+
+        --color-atrisk: #d97706;
+        --color-atrisk-bg: rgba(217, 119, 6, 0.12);
+        --color-atrisk-border: rgba(217, 119, 6, 0.3);
+
+        --color-late: #dc2626;
+        --color-late-bg: rgba(220, 38, 38, 0.12);
+        --color-late-border: rgba(220, 38, 38, 0.3);
+
+        --color-novehicle: #4b5563;
+        --color-novehicle-bg: rgba(75, 85, 99, 0.1);
+        --color-novehicle-border: rgba(75, 85, 99, 0.25);
+
+        --primary: #2563eb;
+        --primary-hover: #1d4ed8;
+        --primary-glow: rgba(37, 99, 235, 0.2);
+        --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+        --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+        --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+      }
+    }
+
+    /* ==========================================================================
+       BASE & RESET
+       ========================================================================== */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg-page);
+      color: var(--text-main);
+      min-height: 100vh;
+      overflow-x: hidden;
+      line-height: 1.45;
+      font-size: 13.5px;
+    }
+
+    /* Header Bar */
+    header {
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(8px);
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-icon {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      box-shadow: 0 0 10px var(--primary-glow);
+    }
+
+    .brand-title {
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .badge-live {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 2px 7px;
+      border-radius: 9999px;
+      background: var(--color-ontime-bg);
+      color: var(--color-ontime);
+      border: 1px solid var(--color-ontime-border);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .badge-live::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--color-ontime);
+      animation: pulse-dot 1.5s infinite;
+    }
+
+    @keyframes pulse-dot {
+      0% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.35; transform: scale(0.8); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .clock-display {
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border);
+      padding: 5px 10px;
+      border-radius: var(--radius-sm);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 12.5px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 6px 12px;
+      font-size: 12.5px;
+      font-weight: 600;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: var(--bg-surface-elevated);
+      color: var(--text-main);
+      cursor: pointer;
+      transition: all 0.18s ease;
+      user-select: none;
+    }
+
+    .btn:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--border-focus);
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-hover);
+      border-color: var(--primary-hover);
+      box-shadow: 0 0 10px var(--primary-glow);
+    }
+
+    .btn-sm {
+      padding: 4px 8px;
+      font-size: 11px;
+    }
+
+    /* 3-Column Layout */
+    .app-container {
+      display: grid;
+      grid-template-columns: 310px minmax(460px, 1.45fr) 340px;
+      gap: 18px;
+      padding: 18px;
+      max-width: 1720px;
+      margin: 0 auto;
+      align-items: start;
+    }
+
+    @media (max-width: 1200px) {
+      .app-container {
+        grid-template-columns: 290px 1fr 310px;
+        gap: 14px;
+        padding: 14px;
+      }
+    }
+
+    @media (max-width: 1040px) {
+      .app-container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Column Panels */
+    .panel {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .panel-header {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 10px;
+    }
+
+    .panel-title-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .step-number {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: white;
+      font-size: 11.5px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .panel-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .panel-subtitle {
+      font-size: 11.5px;
+      color: var(--text-muted);
+    }
+
+    /* Form & Controls */
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .form-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .form-select {
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border);
+      color: var(--text-main);
+      padding: 8px 10px;
+      border-radius: var(--radius-sm);
+      font-size: 12.5px;
+      outline: none;
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+
+    .form-select:focus {
+      border-color: var(--border-focus);
+    }
+
+    /* Disruption Buttons */
+    .disruptions-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+
+    .btn-disrupt {
+      padding: 10px 12px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+      background: var(--bg-surface-elevated);
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 3px;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.18s ease;
+      user-select: none;
+    }
+
+    .btn-disrupt:hover {
+      background: var(--bg-card-hover);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .btn-disrupt:active {
+      transform: translateY(0);
+    }
+
+    .btn-disrupt .d-top {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-weight: 700;
+      font-size: 12.5px;
+    }
+
+    .btn-disrupt .d-desc {
+      font-size: 11px;
+      color: var(--text-muted);
+      line-height: 1.35;
+    }
+
+    .btn-disrupt-road:hover { border-color: #f59e0b; }
+    .btn-disrupt-break:hover { border-color: #ef4444; }
+    .btn-disrupt-weather:hover { border-color: #3b82f6; }
+    .btn-disrupt-customer:hover { border-color: #8b5cf6; }
+
+    /* Change Log Section */
+    .log-panel {
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      display: flex;
+      flex-direction: column;
+      max-height: 270px;
+      overflow: hidden;
+    }
+
+    .log-header {
+      padding: 7px 10px;
+      background: rgba(0, 0, 0, 0.15);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11.5px;
+      font-weight: 600;
+    }
+
+    .log-list {
+      overflow-y: auto;
+      padding: 8px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      list-style: none;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 11px;
+    }
+
+    .log-item {
+      padding: 5px 8px;
+      border-radius: var(--radius-sm);
+      background: rgba(0, 0, 0, 0.15);
+      border-left: 3px solid var(--primary);
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      animation: fadeIn 0.25s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-3px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .log-item-time {
+      color: var(--text-dim);
+      font-size: 9.5px;
+    }
+
+    .log-item-text {
+      color: var(--text-main);
+      word-break: break-word;
+    }
+
+    .log-item.log-road { border-left-color: #f59e0b; }
+    .log-item.log-break { border-left-color: #ef4444; }
+    .log-item.log-weather { border-left-color: #3b82f6; }
+    .log-item.log-cust { border-left-color: #8b5cf6; }
+    .log-item.log-action { border-left-color: #10b981; }
+
+    /* Center Column: KPIs & Map */
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+    }
+
+    @media (max-width: 680px) {
+      .kpi-row {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .kpi-card {
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 8px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      transition: transform 0.15s ease;
+    }
+
+    .kpi-card:hover {
+      transform: translateY(-1px);
+    }
+
+    .kpi-title {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .kpi-value {
+      font-size: 20px;
+      font-weight: 800;
+      line-height: 1.1;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+
+    .kpi-card.kpi-ontime .kpi-value { color: var(--color-ontime); }
+    .kpi-card.kpi-atrisk .kpi-value { color: var(--color-atrisk); }
+    .kpi-card.kpi-late .kpi-value { color: var(--color-late); }
+    .kpi-card.kpi-novehicle .kpi-value { color: var(--color-novehicle); }
+    .kpi-card.kpi-active .kpi-value { color: var(--primary); }
+
+    /* SVG Map Container */
+    .map-container {
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 8px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.35);
+    }
+
+    .map-header-overlay {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(17, 24, 39, 0.88);
+      backdrop-filter: blur(6px);
+      padding: 4px 10px;
+      border-radius: 9999px;
+      border: 1px solid var(--border);
+      font-size: 10.5px;
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+
+    .map-legend {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .legend-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+    }
+
+    svg.logistics-map {
+      width: 100%;
+      height: auto;
+      display: block;
+      user-select: none;
+    }
+
+    .map-grid-line {
+      stroke: rgba(255, 255, 255, 0.04);
+      stroke-width: 1;
+    }
+
+    [data-theme="light"] .map-grid-line {
+      stroke: rgba(0, 0, 0, 0.05);
+    }
+
+    .route-line {
+      fill: none;
+      stroke-width: 3.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      transition: opacity 0.25s;
+    }
+
+    .route-line-halo {
+      fill: none;
+      stroke-width: 8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      opacity: 0.18;
+    }
+
+    /* Glitch-Free Stop Markers */
+    .stop-marker {
+      cursor: pointer;
+    }
+
+    .stop-hitbox {
+      fill: transparent;
+      pointer-events: all;
+    }
+
+    .stop-marker text,
+    .stop-marker .pulse-ring,
+    .stop-marker .stop-badge-icon {
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .stop-circle {
+      stroke: #ffffff;
+      stroke-width: 2;
+      transition: r 0.15s ease, stroke-width 0.15s ease, filter 0.15s ease;
+      pointer-events: none;
+    }
+
+    .stop-marker:hover .stop-circle {
+      r: 17;
+      stroke-width: 3.5;
+      filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.7));
+    }
+
+    .stop-label {
+      fill: var(--text-main);
+      font-size: 10.5px;
+      font-weight: 700;
+      text-anchor: middle;
+      pointer-events: none;
+      user-select: none;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85);
+      transition: fill 0.15s ease;
+    }
+
+    .stop-marker:hover .stop-label {
+      fill: #60a5fa;
+      font-weight: 800;
+    }
+
+    .stop-text {
+      fill: #ffffff;
+      font-size: 11px;
+      font-weight: 800;
+      text-anchor: middle;
+      dominant-baseline: central;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    /* Pulsing Ring on Late Stops */
+    .pulse-ring {
+      fill: none;
+      stroke: var(--color-late);
+      stroke-width: 2.5;
+      animation: svg-pulse 1.8s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+      transform-origin: center;
+      pointer-events: none;
+    }
+
+    @keyframes svg-pulse {
+      0% {
+        r: 14;
+        opacity: 0.95;
+      }
+      70% {
+        r: 32;
+        opacity: 0.2;
+      }
+      100% {
+        r: 36;
+        opacity: 0;
+      }
+    }
+
+    /* Weather Zone Graphic */
+    .weather-zone-circle {
+      fill: url(#weatherGradient);
+      stroke: #3b82f6;
+      stroke-width: 2;
+      stroke-dasharray: 6 4;
+      animation: rotateWeather 35s linear infinite;
+      transform-origin: 610px 250px;
+    }
+
+    @keyframes rotateWeather {
+      from { stroke-dashoffset: 0; }
+      to { stroke-dashoffset: 100; }
+    }
+
+    /* Tooltip */
+    #map-tooltip {
+      position: absolute;
+      display: none;
+      pointer-events: none !important;
+      background: rgba(17, 24, 39, 0.95);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 8px 12px;
+      font-size: 11px;
+      z-index: 1000;
+      box-shadow: var(--shadow-md);
+      backdrop-filter: blur(4px);
+      max-width: 220px;
+      line-height: 1.4;
+      transition: opacity 0.1s ease;
+    }
+
+    /* Below Map: "2 What is affected?" */
+    .affected-section {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .affected-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .affected-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-height: 380px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .affected-card {
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 9px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      transition: all 0.18s ease;
+      cursor: pointer;
+    }
+
+    .affected-card:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--border-focus);
+      transform: translateX(2px);
+    }
+
+    .affected-card.selected {
+      border-color: var(--primary);
+      box-shadow: 0 0 10px var(--primary-glow);
+    }
+
+    .affected-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .stop-badge {
+      width: 30px;
+      height: 30px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 12px;
+      color: white;
+      flex-shrink: 0;
+    }
+
+    .affected-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0;
+    }
+
+    .affected-name {
+      font-weight: 700;
+      font-size: 12.5px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .affected-times {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .affected-tags {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      flex-wrap: wrap;
+      margin-top: 2px;
+    }
+
+    .tag-pill {
+      font-size: 9.5px;
+      font-weight: 600;
+      padding: 2px 5px;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+    }
+
+    [data-theme="light"] .tag-pill {
+      background: rgba(0, 0, 0, 0.05);
+    }
+
+    .tag-perishable {
+      background: rgba(59, 130, 246, 0.15);
+      color: #60a5fa;
+      border-color: rgba(59, 130, 246, 0.3);
+    }
+
+    .tag-vip {
+      background: rgba(245, 158, 11, 0.15);
+      color: #fbbf24;
+      border-color: rgba(245, 158, 11, 0.3);
+    }
+
+    .tag-customer-changed {
+      background: rgba(139, 92, 246, 0.15);
+      color: #c084fc;
+      border-color: rgba(139, 92, 246, 0.3);
+    }
+
+    .affected-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 3px;
+      flex-shrink: 0;
+    }
+
+    .urgency-badge {
+      font-size: 10.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      padding: 2px 7px;
+      border-radius: 9999px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .urgency-critical {
+      background: var(--color-late-bg);
+      color: var(--color-late);
+      border: 1px solid var(--color-late-border);
+      box-shadow: 0 0 8px var(--danger-glow);
+    }
+
+    .urgency-high {
+      background: var(--color-atrisk-bg);
+      color: var(--color-atrisk);
+      border: 1px solid var(--color-atrisk-border);
+    }
+
+    .urgency-medium {
+      background: rgba(59, 130, 246, 0.15);
+      color: #60a5fa;
+      border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+
+    .urgency-score-label {
+      font-size: 9.5px;
+      color: var(--text-dim);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+
+    /* Column 3: "3 What should we do next?" */
+    .options-container {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .option-card {
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      position: relative;
+      transition: all 0.2s ease;
+    }
+
+    .option-card:hover {
+      background: var(--bg-card-hover);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .option-card.recommended {
+      border: 2px solid var(--color-ontime);
+      box-shadow: 0 0 16px var(--success-glow);
+      background: linear-gradient(to bottom, rgba(16, 185, 129, 0.06), var(--bg-surface-elevated));
+    }
+
+    .recommended-pill {
+      position: absolute;
+      top: -10px;
+      right: 12px;
+      background: var(--color-ontime);
+      color: #ffffff;
+      font-size: 9.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      padding: 2px 7px;
+      border-radius: 9999px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .option-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .option-title {
+      font-weight: 700;
+      font-size: 13.5px;
+      color: var(--text-main);
+    }
+
+    .option-letter {
+      width: 18px;
+      height: 18px;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.12);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 800;
+      margin-right: 5px;
+    }
+
+    .option-desc {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      line-height: 1.35;
+    }
+
+    /* Before / After Metrics Row */
+    .metrics-comparison {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: var(--radius-sm);
+      padding: 6px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+
+    [data-theme="light"] .metrics-comparison {
+      background: rgba(0, 0, 0, 0.04);
+    }
+
+    .metric-cell {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 2px;
+    }
+
+    .metric-label {
+      font-size: 9px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+
+    .metric-value {
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .metric-delta-good { color: var(--color-ontime); }
+    .metric-delta-neutral { color: var(--text-muted); }
+    .metric-delta-bad { color: var(--color-late); }
+
+    .option-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 3px;
+    }
+
+    .cost-score-tag {
+      font-size: 10.5px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      color: var(--text-muted);
+    }
+
+    /* Scrollbars */
+    ::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.1);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(156, 163, 175, 0.3);
+      border-radius: 3px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header Navigation -->
+  <header>
+    <div class="brand-group">
+      <div class="brand-icon">📦</div>
+      <div>
+        <div class="brand-title">
+          Disruption-Aware Logistics Control Room
+          <span class="badge-live">Live Dispatch</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <div class="clock-display" id="plan-clock" title="Plan operational window">
+        <span>🕒 Plan Time:</span>
+        <strong id="clock-time">09:00</strong>
+      </div>
+      <button class="btn" id="btn-theme-toggle" title="Toggle dark/light mode">
+        <span id="theme-icon">☀️</span> Light
+      </button>
+      <button class="btn btn-primary" id="btn-reset-demo" title="Reset all disruptions to baseline plan">
+        ↺ Reset Demo
+      </button>
+    </div>
+  </header>
+
+  <!-- Main 3-Column Layout -->
+  <main class="app-container">
+
+    <!-- ======================================================================
+         COLUMN 1: "1 What changed?"
+         ====================================================================== -->
+    <section class="panel" id="panel-what-changed">
+      <div class="panel-header">
+        <div class="panel-title-wrapper">
+          <span class="step-number">1</span>
+          <h2 class="panel-title">What changed?</h2>
+        </div>
+        <p class="panel-subtitle">Simulate real-world operational disruptions to evaluate risk</p>
+      </div>
+
+      <!-- Target Selection Dropdowns -->
+      <div class="form-group">
+        <label class="form-label" for="select-vehicle">Target Vehicle</label>
+        <select class="form-select" id="select-vehicle"></select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="select-delivery">Target Delivery</label>
+        <select class="form-select" id="select-delivery"></select>
+      </div>
+
+      <!-- 4 Disruption Buttons -->
+      <div class="form-group">
+        <label class="form-label">Trigger Disruption Event</label>
+        <div class="disruptions-grid">
+          <button class="btn-disrupt btn-disrupt-road" id="btn-disrupt-road" title="Simulate blocked corridor detour (+30 min)">
+            <div class="d-top">
+              <span>🚧</span> Road Closure (+30m)
+            </div>
+            <div class="d-desc">+30 min detour penalty on target vehicle route</div>
+          </button>
+
+          <button class="btn-disrupt btn-disrupt-break" id="btn-disrupt-break" title="Simulate mechanical failure">
+            <div class="d-top">
+              <span>💥</span> Vehicle Breakdown
+            </div>
+            <div class="d-desc">Vehicle halts; assigned stops left without vehicle</div>
+          </button>
+
+          <button class="btn-disrupt btn-disrupt-weather" id="btn-disrupt-weather" title="Simulate severe weather radar zone (+15 min)">
+            <div class="d-top">
+              <span>⛈️</span> Severe Weather (+15m)
+            </div>
+            <div class="d-desc">+15 min delay for all stops within affected radar radius</div>
+          </button>
+
+          <button class="btn-disrupt btn-disrupt-customer" id="btn-disrupt-customer" title="Customer accelerates deadline (-40 min)">
+            <div class="d-top">
+              <span>⏱️</span> Customer Change (-40m)
+            </div>
+            <div class="d-desc">Target delivery deadline pulled 40 minutes earlier</div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Change Log Section -->
+      <div class="log-panel">
+        <div class="log-header">
+          <span>Operational Change Log</span>
+          <span id="log-count" style="color:var(--text-dim);">0 events</span>
+        </div>
+        <ul class="log-list" id="log-list"></ul>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         COLUMN 2: CENTRE ("Control & Map & 2 What is affected?")
+         ====================================================================== -->
+    <section class="panel" id="panel-control-center">
+      <!-- 5 KPI Tiles -->
+      <div class="kpi-row">
+        <div class="kpi-card kpi-ontime">
+          <span class="kpi-title">✓ On Time</span>
+          <span class="kpi-value" id="kpi-ontime">12</span>
+        </div>
+        <div class="kpi-card kpi-atrisk">
+          <span class="kpi-title">⚠ At Risk</span>
+          <span class="kpi-value" id="kpi-atrisk">0</span>
+        </div>
+        <div class="kpi-card kpi-late">
+          <span class="kpi-title">✖ Late</span>
+          <span class="kpi-value" id="kpi-late">0</span>
+        </div>
+        <div class="kpi-card kpi-novehicle">
+          <span class="kpi-title">🚫 No Vehicle</span>
+          <span class="kpi-value" id="kpi-novehicle">0</span>
+        </div>
+        <div class="kpi-card kpi-active">
+          <span class="kpi-title">🚚 Active Vans</span>
+          <span class="kpi-value" id="kpi-active">4 / 4</span>
+        </div>
+      </div>
+
+      <!-- Inline SVG Map -->
+      <div class="map-container">
+        <div class="map-header-overlay">
+          <span>Active Route Map (800x500 Grid)</span>
+          <div class="map-legend">
+            <span class="legend-item"><span class="legend-dot" style="background:var(--color-ontime)"></span> On Time</span>
+            <span class="legend-item"><span class="legend-dot" style="background:var(--color-atrisk)"></span> At Risk</span>
+            <span class="legend-item"><span class="legend-dot" style="background:var(--color-late)"></span> Late</span>
+            <span class="legend-item"><span class="legend-dot" style="background:var(--color-novehicle)"></span> No Vehicle</span>
+          </div>
+        </div>
+
+        <svg class="logistics-map" viewBox="0 0 800 500" id="svg-map">
+          <defs>
+            <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+              <path d="M 40 0 L 0 0 0 40" fill="none" class="map-grid-line" />
+            </pattern>
+            <radialGradient id="weatherGradient" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.38" />
+              <stop offset="65%" stop-color="#2563eb" stop-opacity="0.2" />
+              <stop offset="100%" stop-color="#1d4ed8" stop-opacity="0.02" />
+            </radialGradient>
+          </defs>
+
+          <!-- Grid Background & Visual Landmarks -->
+          <rect width="800" height="500" fill="url(#grid)" />
+          
+          <!-- City Arterials & River (vector art) -->
+          <path d="M 0,270 Q 220,290 380,240 T 800,280" fill="none" stroke="rgba(59,130,246,0.14)" stroke-width="26" stroke-linecap="round" />
+          <path d="M 120,0 L 280,500" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="6" />
+          <path d="M 680,0 L 520,500" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="6" />
+          <path d="M 0,160 L 800,160" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="4" />
+          <path d="M 0,380 L 800,380" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="4" />
+
+          <!-- Dynamic Weather Layer -->
+          <g id="layer-weather"></g>
+
+          <!-- Dynamic Route Lines Layer -->
+          <g id="layer-routes"></g>
+
+          <!-- Dynamic Road Closure Barrier Layer -->
+          <g id="layer-closures"></g>
+
+          <!-- Depot Graphic (400, 250) -->
+          <g id="depot-marker" transform="translate(400, 250)">
+            <rect x="-24" y="-24" width="48" height="48" rx="8" fill="#1e293b" stroke="#3b82f6" stroke-width="2.5" />
+            <text x="0" y="5" font-size="20" text-anchor="middle" dominant-baseline="central">🏢</text>
+            <rect x="-42" y="27" width="84" height="18" rx="4" fill="rgba(15,23,42,0.92)" stroke="var(--border)" stroke-width="1" />
+            <text x="0" y="36" fill="#93c5fd" font-size="10" font-weight="700" text-anchor="middle" dominant-baseline="central">DEPOT (DC-1)</text>
+          </g>
+
+          <!-- Dynamic Delivery Stop Markers Layer -->
+          <g id="layer-stops"></g>
+        </svg>
+
+        <!-- Hover Tooltip -->
+        <div id="map-tooltip"></div>
+      </div>
+
+      <!-- Below Map: "2 What is affected?" -->
+      <div class="affected-section">
+        <div class="affected-header">
+          <div class="panel-title-wrapper">
+            <span class="step-number">2</span>
+            <h2 class="panel-title">What is affected?</h2>
+          </div>
+          <span style="font-size:11.5px; color:var(--text-muted);">
+            Ranked by Urgency Score (<span id="affected-count">0</span> Deliveries)
+          </span>
+        </div>
+
+        <div class="affected-list" id="affected-list"></div>
+      </div>
+    </section>
+
+    <!-- ======================================================================
+         COLUMN 3: "3 What should we do next?" (Option Cards)
+         ====================================================================== -->
+    <section class="panel" id="panel-what-next">
+      <div class="panel-header">
+        <div class="panel-title-wrapper">
+          <span class="step-number">3</span>
+          <h2 class="panel-title">What should we do next?</h2>
+        </div>
+        <p class="panel-subtitle">Action options evaluated in real time. Lowest cost recommended.</p>
+      </div>
+
+      <div class="options-container" id="options-container"></div>
+    </section>
+
+  </main>
+
+  <!-- ==========================================================================
+       JAVASCRIPT APPLICATION LOGIC
+       ========================================================================== -->
+  <script>
+    (function () {
+      'use strict';
+
+      /* ------------------------------------------------------------------------
+         DATA STRUCTURES & CONSTANTS
+         ------------------------------------------------------------------------ */
+      const DEPOT = { x: 400, y: 250, name: "Central Depot (DC-1)" };
+      const START_MINUTES = 540; // 09:00
+      const WEATHER_ZONE = { x: 610, y: 250, radius: 165 };
+
+      // 12 Initial Deliveries
+      const INITIAL_DELIVERIES = [
+        // V1 (North-West)
+        { id: 'D1', num: 1, name: 'Apex Pharma Hub', x: 180, y: 110, priority: 3, perishable: true, slack: 25, defaultVeh: 'V1' },
+        { id: 'D2', num: 2, name: 'Metro General Hospital', x: 260, y: 180, priority: 3, perishable: true, slack: 30, defaultVeh: 'V1' },
+        { id: 'D3', num: 3, name: 'Northside Grocers', x: 140, y: 230, priority: 1, perishable: false, slack: 40, defaultVeh: 'V1' },
+
+        // V2 (North-East)
+        { id: 'D4', num: 4, name: 'City Center Fresh Mart', x: 490, y: 110, priority: 2, perishable: true, slack: 25, defaultVeh: 'V2' },
+        { id: 'D5', num: 5, name: 'Highland Specialty Foods', x: 630, y: 100, priority: 2, perishable: false, slack: 35, defaultVeh: 'V2' },
+        { id: 'D6', num: 6, name: 'Eastside Tech Campus', x: 690, y: 210, priority: 1, perishable: false, slack: 45, defaultVeh: 'V2' },
+
+        // V3 (South-East)
+        { id: 'D7', num: 7, name: 'Harbor Cold Storage', x: 660, y: 350, priority: 3, perishable: true, slack: 20, defaultVeh: 'V3' },
+        { id: 'D8', num: 8, name: 'Riverside Bistro & Cafe', x: 540, y: 390, priority: 2, perishable: true, slack: 30, defaultVeh: 'V3' },
+        { id: 'D9', num: 9, name: 'Bayview Retail Outlet', x: 610, y: 460, priority: 1, perishable: false, slack: 40, defaultVeh: 'V3' },
+
+        // V4 (South-West)
+        { id: 'D10', num: 10, name: 'South Gate Cargo Terminal', x: 270, y: 370, priority: 2, perishable: false, slack: 35, defaultVeh: 'V4' },
+        { id: 'D11', num: 11, name: 'Valley Urgent Care', x: 150, y: 430, priority: 3, perishable: true, slack: 25, defaultVeh: 'V4' },
+        { id: 'D12', num: 12, name: 'Westend Industrial Park', x: 330, y: 460, priority: 1, perishable: false, slack: 40, defaultVeh: 'V4' }
+      ];
+
+      // Vehicles Configuration
+      const INITIAL_VEHICLES = [
+        { id: 'V1', name: 'Van 1 (North-West)', color: '#3b82f6', active: true, roadClosure: false, startTime: 540, stops: ['D1', 'D2', 'D3'] },
+        { id: 'V2', name: 'Van 2 (North-East)', color: '#8b5cf6', active: true, roadClosure: false, startTime: 540, stops: ['D4', 'D5', 'D6'] },
+        { id: 'V3', name: 'Van 3 (South-East)', color: '#f59e0b', active: true, roadClosure: false, startTime: 540, stops: ['D7', 'D8', 'D9'] },
+        { id: 'V4', name: 'Van 4 (South-West)', color: '#10b981', active: true, roadClosure: false, startTime: 540, stops: ['D10', 'D11', 'D12'] },
+        { id: 'V5', name: 'Backup Sprinter V5', color: '#ec4899', active: false, roadClosure: false, startTime: 555, stops: [] }
+      ];
+
+      /* ------------------------------------------------------------------------
+         APPLICATION STATE
+         ------------------------------------------------------------------------ */
+      let state = {
+        deliveries: [],
+        vehicles: [],
+        weatherActive: false,
+        selectedDeliveryId: 'D1',
+        selectedVehicleId: 'V1',
+        logs: [],
+        simTimeMinutes: 540
+      };
+
+      /* ------------------------------------------------------------------------
+         GEOMETRY & TIME HELPERS
+         ------------------------------------------------------------------------ */
+      function getDistancePx(p1, p2) {
+        const dx = p1.x - p2.x;
+        const dy = p1.y - p2.y;
+        return Math.sqrt(dx * dx + dy * dy);
+      }
+
+      function formatTime(minutes) {
+        if (minutes == null || isNaN(minutes)) return '--:--';
+        const totalMins = Math.round(minutes);
+        const h = Math.floor(totalMins / 60) % 24;
+        const m = totalMins % 60;
+        return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+      }
+
+      function getDeliveryFromState(targetState, id) {
+        return targetState.deliveries.find(d => d.id === id);
+      }
+
+      /* ------------------------------------------------------------------------
+         INITIALIZATION & BASELINE STATE
+         ------------------------------------------------------------------------ */
+      function initBaselineState() {
+        const vehicles = JSON.parse(JSON.stringify(INITIAL_VEHICLES));
+        const deliveries = JSON.parse(JSON.stringify(INITIAL_DELIVERIES));
+
+        deliveries.forEach(d => {
+          d.assignedVehicle = d.defaultVeh;
+          d.customerChanged = false;
+        });
+
+        // Compute baseline Planned ETAs & Deadlines (distance * 0.1 min/px + 6 min service)
+        vehicles.filter(v => v.active).forEach(veh => {
+          let currX = DEPOT.x;
+          let currY = DEPOT.y;
+          let currTime = veh.startTime;
+
+          veh.stops.forEach(stopId => {
+            const stop = deliveries.find(d => d.id === stopId);
+            if (!stop) return;
+            const dist = getDistancePx({ x: currX, y: currY }, { x: stop.x, y: stop.y });
+            const travelTime = dist * 0.1;
+            currTime += travelTime;
+            stop.plannedEta = currTime;
+            stop.deadline = stop.plannedEta + stop.slack;
+            currTime += 6; // 6 min service time per stop
+            currX = stop.x;
+            currY = stop.y;
+          });
+        });
+
+        state.deliveries = deliveries;
+        state.vehicles = vehicles;
+        state.weatherActive = false;
+        state.selectedDeliveryId = 'D1';
+        state.selectedVehicleId = 'V1';
+        state.simTimeMinutes = 540;
+        state.logs = [
+          {
+            time: '09:00',
+            type: 'log-action',
+            text: 'System baseline initialized: 4 active vehicles, 12 scheduled deliveries on time.'
+          }
+        ];
+      }
+
+      /* ------------------------------------------------------------------------
+         CORE PLAN EVALUATOR ENGINE
+         ------------------------------------------------------------------------ */
+      function evaluatePlan(targetState) {
+        const vehicles = targetState.vehicles;
+        const deliveries = targetState.deliveries;
+
+        // Reset assignment pointers
+        deliveries.forEach(d => {
+          d.assignedVehicle = null;
+          d.currentEta = null;
+          d.downstreamCount = 0;
+          d.minutesLate = 0;
+        });
+
+        let totalDistancePx = 0;
+
+        // Traverse each active vehicle's stop sequence
+        vehicles.forEach(veh => {
+          if (!veh.active) {
+            veh.stops = [];
+            return;
+          }
+
+          let currX = DEPOT.x;
+          let currY = DEPOT.y;
+          let currTime = veh.startTime;
+
+          // Road closure adds +30 min detour penalty to route
+          if (veh.roadClosure) {
+            currTime += 30;
+          }
+
+          for (let i = 0; i < veh.stops.length; i++) {
+            const stopId = veh.stops[i];
+            const stop = deliveries.find(d => d.id === stopId);
+            if (!stop) continue;
+
+            stop.assignedVehicle = veh.id;
+            const dist = getDistancePx({ x: currX, y: currY }, { x: stop.x, y: stop.y });
+            totalDistancePx += dist;
+
+            const travelTime = dist * 0.1;
+            currTime += travelTime;
+
+            // Severe weather adds +15 min if stop falls within weather radius
+            if (targetState.weatherActive && getDistancePx({ x: stop.x, y: stop.y }, WEATHER_ZONE) <= WEATHER_ZONE.radius) {
+              currTime += 15;
+            }
+
+            stop.currentEta = currTime;
+            stop.downstreamCount = veh.stops.length - 1 - i;
+
+            // 6 min service time
+            currTime += 6;
+            currX = stop.x;
+            currY = stop.y;
+          }
+        });
+
+        // Compute Status and Urgency Score for all deliveries
+        deliveries.forEach(d => {
+          if (!d.assignedVehicle) {
+            d.status = 'no-vehicle';
+            d.minutesLate = 0;
+          } else {
+            const minutesLate = Math.max(0, d.currentEta - d.deadline);
+            d.minutesLate = minutesLate;
+
+            if (d.currentEta > d.deadline) {
+              d.status = 'late';
+            } else if (d.currentEta > d.deadline - 10) {
+              d.status = 'at-risk';
+            } else {
+              d.status = 'on-time';
+            }
+          }
+
+          // Urgency formula as specified:
+          // priority x 18 + perishable 20 + min(30, minutes late) + 30 if no vehicle + 4 per downstream stop
+          const pScore = d.priority * 18;
+          const perishScore = d.perishable ? 20 : 0;
+          const lateScore = Math.min(30, d.minutesLate || 0);
+          const noVehScore = !d.assignedVehicle ? 30 : 0;
+          const downScore = (d.downstreamCount || 0) * 4;
+
+          d.urgencyScore = Math.round(pScore + perishScore + lateScore + noVehScore + downScore);
+
+          if (d.urgencyScore >= 80) {
+            d.urgencyPill = 'Critical';
+          } else if (d.urgencyScore >= 55) {
+            d.urgencyPill = 'High';
+          } else {
+            d.urgencyPill = 'Medium';
+          }
+        });
+
+        return {
+          totalDistanceKm: totalDistancePx * 0.1,
+          lateCount: deliveries.filter(d => d.status === 'late').length,
+          atRiskCount: deliveries.filter(d => d.status === 'at-risk').length,
+          onTimeCount: deliveries.filter(d => d.status === 'on-time').length,
+          noVehicleCount: deliveries.filter(d => d.status === 'no-vehicle').length,
+          activeVehiclesCount: vehicles.filter(v => v.active).length,
+          totalVehiclesCount: vehicles.length
+        };
+      }
+
+      /* ------------------------------------------------------------------------
+         EVENT LOG HELPER
+         ------------------------------------------------------------------------ */
+      function addLog(type, text) {
+        state.logs.unshift({
+          time: formatTime(state.simTimeMinutes),
+          type: type,
+          text: text
+        });
+        if (state.logs.length > 30) state.logs.pop();
+        renderLog();
+      }
+
+      /* ------------------------------------------------------------------------
+         DISRUPTIONS
+         ------------------------------------------------------------------------ */
+      function triggerRoadClosure() {
+        const veh = state.vehicles.find(v => v.id === state.selectedVehicleId);
+        if (!veh) return;
+        if (!veh.active) {
+          addLog('log-road', `Cannot apply detour: Vehicle ${veh.id} is currently broken down.`);
+          return;
+        }
+
+        veh.roadClosure = !veh.roadClosure;
+        state.simTimeMinutes += 2;
+
+        if (veh.roadClosure) {
+          addLog('log-road', `🚧 Road closure on route ${veh.id} (${veh.name}). +30 min detour delay applied.`);
+        } else {
+          addLog('log-road', `🛣️ Road cleared for vehicle ${veh.id}. Standard route transit restored.`);
+        }
+        updateDashboard();
+      }
+
+      function triggerVehicleBreakdown() {
+        const veh = state.vehicles.find(v => v.id === state.selectedVehicleId);
+        if (!veh) return;
+        if (!veh.active) {
+          addLog('log-break', `Vehicle ${veh.id} is already broken down.`);
+          return;
+        }
+
+        const strandedStops = [...veh.stops];
+        veh.active = false;
+        veh.stops = [];
+
+        state.simTimeMinutes += 3;
+        addLog('log-break', `💥 Engine failure: Vehicle ${veh.id} broken down! Deliveries ${strandedStops.join(', ')} stranded without vehicle.`);
+        updateDashboard();
+      }
+
+      function triggerSevereWeather() {
+        state.weatherActive = !state.weatherActive;
+        state.simTimeMinutes += 2;
+
+        if (state.weatherActive) {
+          addLog('log-weather', `⛈️ Severe weather radar active (Radius 165px). +15 min delay applied to all enclosed stops.`);
+        } else {
+          addLog('log-weather', `🌤️ Severe weather warning cleared. Normal delivery transit speeds resumed.`);
+        }
+        updateDashboard();
+      }
+
+      function triggerCustomerChange() {
+        const del = state.deliveries.find(d => d.id === state.selectedDeliveryId);
+        if (!del) return;
+
+        del.deadline -= 40;
+        del.customerChanged = true;
+        state.simTimeMinutes += 2;
+
+        addLog('log-cust', `⏱️ Customer ${del.id} (${del.name}) requested earlier arrival. Deadline advanced by 40 min (Now due: ${formatTime(del.deadline)}).`);
+        updateDashboard();
+      }
+
+      /* ------------------------------------------------------------------------
+         ACTION OPTIONS GENERATOR & EVALUATOR
+         ------------------------------------------------------------------------ */
+      function cloneCurrentState() {
+        return {
+          deliveries: JSON.parse(JSON.stringify(state.deliveries)),
+          vehicles: JSON.parse(JSON.stringify(state.vehicles)),
+          weatherActive: state.weatherActive,
+          simTimeMinutes: state.simTimeMinutes
+        };
+      }
+
+      function computeOptions() {
+        const currentSummary = evaluatePlan(state);
+        const options = [];
+
+        // ----------------------------------------------------------------------
+        // OPTION A: Reassign problem stops to best nearby vehicle (Cheapest insertion, max 5 stops)
+        // ----------------------------------------------------------------------
+        const simStateA = cloneCurrentState();
+        evaluatePlan(simStateA);
+
+        const problemStops = simStateA.deliveries.filter(d => !d.assignedVehicle || d.status === 'late');
+        let reassignedCountA = 0;
+
+        problemStops.forEach(problemStop => {
+          simStateA.vehicles.forEach(v => {
+            const idx = v.stops.indexOf(problemStop.id);
+            if (idx !== -1) v.stops.splice(idx, 1);
+          });
+
+          let bestVehId = null;
+          let bestInsertIdx = 0;
+          let minExtraDistance = Infinity;
+
+          simStateA.vehicles.filter(v => v.active).forEach(veh => {
+            if (veh.stops.length >= 5) return; // max 5 stops per vehicle constraint
+
+            for (let i = 0; i <= veh.stops.length; i++) {
+              const prevPoint = i === 0 ? DEPOT : getDeliveryFromState(simStateA, veh.stops[i - 1]);
+              const nextPoint = i === veh.stops.length ? null : getDeliveryFromState(simStateA, veh.stops[i]);
+
+              const oldDist = nextPoint ? getDistancePx(prevPoint, nextPoint) : 0;
+              const newDist = getDistancePx(prevPoint, problemStop) + (nextPoint ? getDistancePx(problemStop, nextPoint) : 0);
+              const extraDist = newDist - oldDist;
+
+              if (extraDist < minExtraDistance) {
+                minExtraDistance = extraDist;
+                bestVehId = veh.id;
+                bestInsertIdx = i;
+              }
+            }
+          });
+
+          if (bestVehId) {
+            const targetVeh = simStateA.vehicles.find(v => v.id === bestVehId);
+            targetVeh.stops.splice(bestInsertIdx, 0, problemStop.id);
+            reassignedCountA++;
+          }
+        });
+
+        const summaryA = evaluatePlan(simStateA);
+        const extraKmA = Math.max(0, summaryA.totalDistanceKm - currentSummary.totalDistanceKm);
+
+        let penaltyA = 0;
+        simStateA.deliveries.forEach(d => {
+          if (!d.assignedVehicle) penaltyA += 300 * d.priority * (d.perishable ? 2 : 1);
+          else if (d.status === 'late') penaltyA += 50 * d.priority * (d.perishable ? 1.5 : 1) * Math.min(30, d.minutesLate);
+        });
+        const costA = Math.round(extraKmA * 1.5 + penaltyA);
+
+        options.push({
+          id: 'A',
+          title: 'Reassign Problem Stops',
+          badge: 'Cheapest Insertion (Max 5 stops/van)',
+          desc: `Reassign ${problemStops.length} stranded/late stops to closest active vehicles with open capacity.`,
+          simState: simStateA,
+          metrics: {
+            beforeLate: currentSummary.lateCount,
+            afterLate: summaryA.lateCount,
+            beforeNoVeh: currentSummary.noVehicleCount,
+            afterNoVeh: summaryA.noVehicleCount,
+            extraKm: (extraKmA).toFixed(1)
+          },
+          cost: costA,
+          action: () => {
+            state.deliveries = simStateA.deliveries;
+            state.vehicles = simStateA.vehicles;
+            state.simTimeMinutes += 5;
+            addLog('log-action', `✅ Action applied: Reassigned ${reassignedCountA} problem stops via cheapest insertion.`);
+            updateDashboard();
+          }
+        });
+
+        // ----------------------------------------------------------------------
+        // OPTION B: Re-sequence stops by deadline
+        // ----------------------------------------------------------------------
+        const simStateB = cloneCurrentState();
+        simStateB.vehicles.filter(v => v.active).forEach(veh => {
+          veh.stops.sort((aId, bId) => {
+            const a = getDeliveryFromState(simStateB, aId);
+            const b = getDeliveryFromState(simStateB, bId);
+            return a.deadline - b.deadline;
+          });
+        });
+
+        const summaryB = evaluatePlan(simStateB);
+        const extraKmB = Math.max(0, summaryB.totalDistanceKm - currentSummary.totalDistanceKm);
+
+        let penaltyB = 0;
+        simStateB.deliveries.forEach(d => {
+          if (!d.assignedVehicle) penaltyB += 300 * d.priority * (d.perishable ? 2 : 1);
+          else if (d.status === 'late') penaltyB += 50 * d.priority * (d.perishable ? 1.5 : 1) * Math.min(30, d.minutesLate);
+        });
+        const costB = Math.round(extraKmB * 1.5 + penaltyB);
+
+        options.push({
+          id: 'B',
+          title: 'Re-sequence Stops by Deadline',
+          badge: 'Earliest Deadline First Order',
+          desc: 'Sort assigned stops on active routes by deadline to fulfill urgent time windows first.',
+          simState: simStateB,
+          metrics: {
+            beforeLate: currentSummary.lateCount,
+            afterLate: summaryB.lateCount,
+            beforeNoVeh: currentSummary.noVehicleCount,
+            afterNoVeh: summaryB.noVehicleCount,
+            extraKm: (extraKmB).toFixed(1)
+          },
+          cost: costB,
+          action: () => {
+            state.deliveries = simStateB.deliveries;
+            state.vehicles = simStateB.vehicles;
+            state.simTimeMinutes += 3;
+            addLog('log-action', `✅ Action applied: Re-sequenced active routes by earliest delivery deadline.`);
+            updateDashboard();
+          }
+        });
+
+        // ----------------------------------------------------------------------
+        // OPTION C: Dispatch backup vehicle V5 (starts 15 min late)
+        // ----------------------------------------------------------------------
+        const simStateC = cloneCurrentState();
+        const v5 = simStateC.vehicles.find(v => v.id === 'V5');
+        v5.active = true;
+        v5.startTime = 555; // 09:15
+
+        const strandedStops = simStateC.deliveries.filter(d => !d.assignedVehicle);
+        if (strandedStops.length > 0) {
+          strandedStops.forEach(s => {
+            v5.stops.push(s.id);
+          });
+        } else {
+          const lateStops = simStateC.deliveries.filter(d => d.status === 'late');
+          lateStops.forEach(lateStop => {
+            simStateC.vehicles.forEach(v => {
+              if (v.id === 'V5') return;
+              const idx = v.stops.indexOf(lateStop.id);
+              if (idx !== -1) v.stops.splice(idx, 1);
+            });
+            v5.stops.push(lateStop.id);
+          });
+        }
+
+        v5.stops.sort((aId, bId) => {
+          const a = getDeliveryFromState(simStateC, aId);
+          const b = getDeliveryFromState(simStateC, bId);
+          return a.deadline - b.deadline;
+        });
+
+        const summaryC = evaluatePlan(simStateC);
+        const extraKmC = Math.max(0, summaryC.totalDistanceKm - currentSummary.totalDistanceKm);
+
+        let penaltyC = 0;
+        simStateC.deliveries.forEach(d => {
+          if (!d.assignedVehicle) penaltyC += 300 * d.priority * (d.perishable ? 2 : 1);
+          else if (d.status === 'late') penaltyC += 50 * d.priority * (d.perishable ? 1.5 : 1) * Math.min(30, d.minutesLate);
+        });
+        const costC = Math.round(extraKmC * 1.5 + penaltyC + 35); // +35 fixed dispatch setup cost
+
+        options.push({
+          id: 'C',
+          title: 'Dispatch Backup Vehicle V5',
+          badge: 'Departs 09:15 (+15m setup)',
+          desc: 'Deploy standby Sprinter V5 from depot to absorb unserved and delayed stops.',
+          simState: simStateC,
+          metrics: {
+            beforeLate: currentSummary.lateCount,
+            afterLate: summaryC.lateCount,
+            beforeNoVeh: currentSummary.noVehicleCount,
+            afterNoVeh: summaryC.noVehicleCount,
+            extraKm: (extraKmC).toFixed(1)
+          },
+          cost: costC,
+          action: () => {
+            state.deliveries = simStateC.deliveries;
+            state.vehicles = simStateC.vehicles;
+            state.simTimeMinutes += 5;
+            addLog('log-action', `✅ Action applied: Dispatched Backup Sprinter V5 from Depot (Departs 09:15).`);
+            updateDashboard();
+          }
+        });
+
+        // ----------------------------------------------------------------------
+        // OPTION D: Keep plan and notify customers
+        // ----------------------------------------------------------------------
+        const simStateD = cloneCurrentState();
+        const summaryD = evaluatePlan(simStateD);
+
+        let penaltyD = 0;
+        simStateD.deliveries.forEach(d => {
+          if (!d.assignedVehicle) penaltyD += 300 * d.priority * (d.perishable ? 2 : 1);
+          else if (d.status === 'late') penaltyD += 50 * d.priority * (d.perishable ? 1.5 : 1) * Math.min(30, d.minutesLate);
+        });
+        const costD = Math.round(penaltyD * 0.88 + 30);
+
+        options.push({
+          id: 'D',
+          title: 'Keep Plan & Notify Customers',
+          badge: 'Broadcast Delay Alerts',
+          desc: 'Maintain current routing unchanged. Send automated SMS delivery window advisories to affected customers.',
+          simState: simStateD,
+          metrics: {
+            beforeLate: currentSummary.lateCount,
+            afterLate: summaryD.lateCount,
+            beforeNoVeh: currentSummary.noVehicleCount,
+            afterNoVeh: summaryD.noVehicleCount,
+            extraKm: '0.0'
+          },
+          cost: costD,
+          action: () => {
+            state.simTimeMinutes += 2;
+            addLog('log-action', `✅ Action applied: Kept schedule. Automated SMS advisories dispatched to affected clients.`);
+            updateDashboard();
+          }
+        });
+
+        // Lowest cost marked as Recommended
+        let minCost = Infinity;
+        let recommendedIdx = 0;
+        options.forEach((opt, idx) => {
+          if (opt.cost < minCost) {
+            minCost = opt.cost;
+            recommendedIdx = idx;
+          }
+        });
+        options[recommendedIdx].isRecommended = true;
+
+        return options;
+      }
+
+      /* ------------------------------------------------------------------------
+         UI RENDERING
+         ------------------------------------------------------------------------ */
+      function renderDropdowns() {
+        const vehSelect = document.getElementById('select-vehicle');
+        const prevVehVal = vehSelect.value || state.selectedVehicleId;
+        vehSelect.innerHTML = '';
+        state.vehicles.forEach(v => {
+          const opt = document.createElement('option');
+          opt.value = v.id;
+          opt.textContent = `${v.id} - ${v.name} ${!v.active ? '(Inactive)' : (v.roadClosure ? '(Detour)' : '')}`;
+          vehSelect.appendChild(opt);
+        });
+        if (state.vehicles.some(v => v.id === prevVehVal)) {
+          vehSelect.value = prevVehVal;
+          state.selectedVehicleId = prevVehVal;
+        }
+
+        const delSelect = document.getElementById('select-delivery');
+        const prevDelVal = delSelect.value || state.selectedDeliveryId;
+        delSelect.innerHTML = '';
+        state.deliveries.forEach(d => {
+          const opt = document.createElement('option');
+          opt.value = d.id;
+          opt.textContent = `${d.id}: ${d.name} (${d.assignedVehicle || 'No Vehicle'})`;
+          delSelect.appendChild(opt);
+        });
+        if (state.deliveries.some(d => d.id === prevDelVal)) {
+          delSelect.value = prevDelVal;
+          state.selectedDeliveryId = prevDelVal;
+        }
+      }
+
+      function renderKPIs(summary) {
+        document.getElementById('kpi-ontime').textContent = summary.onTimeCount;
+        document.getElementById('kpi-atrisk').textContent = summary.atRiskCount;
+        document.getElementById('kpi-late').textContent = summary.lateCount;
+        document.getElementById('kpi-novehicle').textContent = summary.noVehicleCount;
+        document.getElementById('kpi-active').textContent = `${summary.activeVehiclesCount} / ${summary.totalVehiclesCount}`;
+      }
+
+      function renderSVGMap() {
+        const routesLayer = document.getElementById('layer-routes');
+        const closuresLayer = document.getElementById('layer-closures');
+        const weatherLayer = document.getElementById('layer-weather');
+        const stopsLayer = document.getElementById('layer-stops');
+
+        routesLayer.innerHTML = '';
+        closuresLayer.innerHTML = '';
+        weatherLayer.innerHTML = '';
+        stopsLayer.innerHTML = '';
+
+        // Weather Zone Circle
+        if (state.weatherActive) {
+          const weatherGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+          weatherGroup.innerHTML = `
+            <circle class="weather-zone-circle" cx="${WEATHER_ZONE.x}" cy="${WEATHER_ZONE.y}" r="${WEATHER_ZONE.radius}" />
+            <g transform="translate(${WEATHER_ZONE.x - 30}, ${WEATHER_ZONE.y - 40})">
+              <rect x="-10" y="-12" width="105" height="24" rx="12" fill="rgba(15,23,42,0.85)" stroke="#3b82f6" stroke-width="1.2" />
+              <text x="42" y="2" fill="#93c5fd" font-size="11" font-weight="700" text-anchor="middle" dominant-baseline="central">⛈️ Storm Zone (+15m)</text>
+            </g>
+          `;
+          weatherLayer.appendChild(weatherGroup);
+        }
+
+        // Vehicle Route Lines
+        state.vehicles.forEach(veh => {
+          if (!veh.active || veh.stops.length === 0) return;
+
+          let pathD = `M ${DEPOT.x} ${DEPOT.y}`;
+          veh.stops.forEach(stopId => {
+            const stop = getDeliveryFromState(state, stopId);
+            if (stop) pathD += ` L ${stop.x} ${stop.y}`;
+          });
+
+          // Glow Halo
+          const halo = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+          halo.setAttribute('d', pathD);
+          halo.setAttribute('stroke', veh.color);
+          halo.setAttribute('class', 'route-line-halo');
+          routesLayer.appendChild(halo);
+
+          // Route Line
+          const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+          path.setAttribute('d', pathD);
+          path.setAttribute('stroke', veh.color);
+          path.setAttribute('class', 'route-line');
+          if (veh.roadClosure) {
+            path.setAttribute('stroke-dasharray', '8 4');
+          }
+          routesLayer.appendChild(path);
+
+          // Road Closure Barrier Icon
+          if (veh.roadClosure) {
+            const firstStop = getDeliveryFromState(state, veh.stops[0]);
+            if (firstStop) {
+              const midX = (DEPOT.x + firstStop.x) / 2;
+              const midY = (DEPOT.y + firstStop.y) / 2;
+
+              const closureG = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+              closureG.setAttribute('transform', `translate(${midX}, ${midY})`);
+              closureG.innerHTML = `
+                <rect x="-22" y="-13" width="44" height="26" rx="5" fill="#7f1d1d" stroke="#ef4444" stroke-width="2" />
+                <text x="0" y="2" font-size="13" text-anchor="middle" dominant-baseline="central">🚧</text>
+                <rect x="-35" y="15" width="70" height="15" rx="3" fill="rgba(15,23,42,0.92)" stroke="#ef4444" stroke-width="1" />
+                <text x="0" y="23" fill="#fca5a5" font-size="9" font-weight="800" text-anchor="middle" dominant-baseline="central">DETOUR +30m</text>
+              `;
+              closuresLayer.appendChild(closureG);
+            }
+          }
+        });
+
+        // Delivery Stop Markers (Stable, Continuous Hit-Target)
+        const tooltip = document.getElementById('map-tooltip');
+        const svgElement = document.getElementById('svg-map');
+
+        state.deliveries.forEach((stop) => {
+          const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+          g.setAttribute('class', 'stop-marker');
+          g.setAttribute('transform', `translate(${stop.x}, ${stop.y})`);
+
+          let statusColor = '#10b981'; // Green on time
+          if (stop.status === 'at-risk') statusColor = '#f59e0b'; // Amber at risk
+          if (stop.status === 'late') statusColor = '#ef4444'; // Red late
+          if (stop.status === 'no-vehicle') statusColor = '#6b7280'; // Grey no vehicle
+
+          let pulseHtml = '';
+          if (stop.status === 'late') {
+            pulseHtml = `<circle class="pulse-ring" cx="0" cy="0" r="14" />`;
+          }
+
+          let iconBadge = '';
+          if (stop.perishable) {
+            iconBadge = `<text x="14" y="-10" font-size="11">❄️</text>`;
+          }
+
+          g.innerHTML = `
+            <rect class="stop-hitbox" x="-25" y="-20" width="50" height="52" rx="10" />
+            ${pulseHtml}
+            <circle class="stop-circle" cx="0" cy="0" r="14" fill="${statusColor}" />
+            <text class="stop-text" x="0" y="0">${stop.num}</text>
+            <text class="stop-label" x="0" y="24">${stop.id}</text>
+            ${iconBadge}
+          `;
+
+          // Tooltip Hover with clamped coordinates to prevent jitter
+          g.addEventListener('mouseenter', () => {
+            const rect = svgElement.getBoundingClientRect();
+            const scaleX = rect.width / 800;
+            const scaleY = rect.height / 500;
+
+            let tipX = stop.x * scaleX + 24;
+            let tipY = stop.y * scaleY - 20;
+
+            if (tipX + 220 > rect.width) {
+              tipX = stop.x * scaleX - 225;
+            }
+            if (tipY + 130 > rect.height) {
+              tipY = rect.height - 140;
+            }
+            if (tipY < 10) tipY = 10;
+
+            tooltip.style.left = `${tipX}px`;
+            tooltip.style.top = `${tipY}px`;
+            tooltip.style.display = 'block';
+            tooltip.innerHTML = `
+              <div style="font-weight:700; color:var(--text-main); margin-bottom:3px;">${stop.id}: ${stop.name}</div>
+              <div><strong>Status:</strong> <span style="color:${statusColor}">${stop.status.toUpperCase()}</span></div>
+              <div><strong>Vehicle:</strong> ${stop.assignedVehicle || 'None'}</div>
+              <div><strong>ETA:</strong> ${stop.currentEta ? formatTime(stop.currentEta) : '--:--'} (Due: ${formatTime(stop.deadline)})</div>
+              <div><strong>Priority:</strong> P${stop.priority} ${stop.perishable ? '• Perishable' : ''}</div>
+              <div style="color:var(--text-muted); font-size:9.5px; margin-top:2px;">Urgency Score: ${stop.urgencyScore}</div>
+            `;
+          });
+
+          g.addEventListener('mouseleave', () => {
+            tooltip.style.display = 'none';
+          });
+
+          g.addEventListener('click', () => {
+            state.selectedDeliveryId = stop.id;
+            document.getElementById('select-delivery').value = stop.id;
+            updateDashboard();
+          });
+
+          stopsLayer.appendChild(g);
+        });
+      }
+
+      function renderAffectedList() {
+        const container = document.getElementById('affected-list');
+        const countSpan = document.getElementById('affected-count');
+        container.innerHTML = '';
+
+        const sortedDeliveries = [...state.deliveries].sort((a, b) => b.urgencyScore - a.urgencyScore);
+        countSpan.textContent = sortedDeliveries.length;
+
+        sortedDeliveries.forEach(del => {
+          const card = document.createElement('div');
+          card.className = `affected-card ${del.id === state.selectedDeliveryId ? 'selected' : ''}`;
+
+          let statusBg = 'var(--color-ontime)';
+          if (del.status === 'at-risk') statusBg = 'var(--color-atrisk)';
+          if (del.status === 'late') statusBg = 'var(--color-late)';
+          if (del.status === 'no-vehicle') statusBg = 'var(--color-novehicle)';
+
+          let tagsHtml = '';
+          if (del.perishable) tagsHtml += `<span class="tag-pill tag-perishable">❄️ Perishable</span>`;
+          if (del.priority === 3) tagsHtml += `<span class="tag-pill tag-vip">⭐ Priority 3</span>`;
+          tagsHtml += `<span class="tag-pill">🚚 ${del.assignedVehicle || 'No Vehicle'}</span>`;
+          if (del.downstreamCount > 0) tagsHtml += `<span class="tag-pill">🔗 Blocks ${del.downstreamCount} stops</span>`;
+          if (del.customerChanged) tagsHtml += `<span class="tag-pill tag-customer-changed">⏱️ Cust Changed</span>`;
+
+          let timingStr = '';
+          if (!del.assignedVehicle) {
+            timingStr = `<span style="color:var(--color-late)">Unassigned / Stranded</span>`;
+          } else if (del.minutesLate > 0) {
+            timingStr = `<span style="color:var(--color-late)">+${Math.round(del.minutesLate)}m Late</span>`;
+          } else {
+            const slackRem = Math.round(del.deadline - del.currentEta);
+            timingStr = `<span style="color:var(--color-ontime)">Slack: ${slackRem}m</span>`;
+          }
+
+          let urgencyClass = 'urgency-medium';
+          if (del.urgencyPill === 'Critical') urgencyClass = 'urgency-critical';
+          if (del.urgencyPill === 'High') urgencyClass = 'urgency-high';
+
+          card.innerHTML = `
+            <div class="affected-left">
+              <div class="stop-badge" style="background:${statusBg}">${del.id}</div>
+              <div class="affected-info">
+                <div class="affected-name">${del.name}</div>
+                <div class="affected-times">
+                  <span>ETA: ${del.currentEta ? formatTime(del.currentEta) : '--:--'}</span>
+                  <span>Due: ${formatTime(del.deadline)}</span>
+                  <span>${timingStr}</span>
+                </div>
+                <div class="affected-tags">
+                  ${tagsHtml}
+                </div>
+              </div>
+            </div>
+            <div class="affected-right">
+              <span class="urgency-badge ${urgencyClass}">
+                ${del.urgencyPill}
+              </span>
+              <span class="urgency-score-label">Score: ${del.urgencyScore}</span>
+            </div>
+          `;
+
+          card.addEventListener('click', () => {
+            state.selectedDeliveryId = del.id;
+            document.getElementById('select-delivery').value = del.id;
+            updateDashboard();
+          });
+
+          container.appendChild(card);
+        });
+      }
+
+      function renderOptions() {
+        const container = document.getElementById('options-container');
+        container.innerHTML = '';
+
+        const options = computeOptions();
+
+        options.forEach(opt => {
+          const card = document.createElement('div');
+          card.className = `option-card ${opt.isRecommended ? 'recommended' : ''}`;
+
+          let recommendedBadge = '';
+          if (opt.isRecommended) {
+            recommendedBadge = `<div class="recommended-pill">★ Recommended</div>`;
+          }
+
+          const lateDelta = opt.metrics.afterLate - opt.metrics.beforeLate;
+          const lateClass = lateDelta < 0 ? 'metric-delta-good' : (lateDelta > 0 ? 'metric-delta-bad' : 'metric-delta-neutral');
+
+          const noVehDelta = opt.metrics.afterNoVeh - opt.metrics.beforeNoVeh;
+          const noVehClass = noVehDelta < 0 ? 'metric-delta-good' : (noVehDelta > 0 ? 'metric-delta-bad' : 'metric-delta-neutral');
+
+          card.innerHTML = `
+            ${recommendedBadge}
+            <div class="option-header">
+              <div>
+                <div class="option-title">
+                  <span class="option-letter">${opt.id}</span>
+                  ${opt.title}
+                </div>
+                <div style="font-size:10.5px; color:var(--primary); font-weight:600; margin-top:2px;">
+                  ${opt.badge}
+                </div>
+              </div>
+            </div>
+
+            <p class="option-desc">${opt.desc}</p>
+
+            <div class="metrics-comparison">
+              <div class="metric-cell">
+                <span class="metric-label">Late Stops</span>
+                <span class="metric-value ${lateClass}">
+                  ${opt.metrics.beforeLate} ➔ ${opt.metrics.afterLate}
+                </span>
+              </div>
+              <div class="metric-cell">
+                <span class="metric-label">No Vehicle</span>
+                <span class="metric-value ${noVehClass}">
+                  ${opt.metrics.beforeNoVeh} ➔ ${opt.metrics.afterNoVeh}
+                </span>
+              </div>
+              <div class="metric-cell">
+                <span class="metric-label">Extra Dist</span>
+                <span class="metric-value metric-delta-neutral">
+                  +${opt.metrics.extraKm} km
+                </span>
+              </div>
+            </div>
+
+            <div class="option-footer">
+              <span class="cost-score-tag">Est. Cost: ${opt.cost}</span>
+              <button class="btn btn-sm ${opt.isRecommended ? 'btn-primary' : ''}">
+                Apply this action
+              </button>
+            </div>
+          `;
+
+          const applyBtn = card.querySelector('button');
+          applyBtn.addEventListener('click', () => {
+            opt.action();
+          });
+
+          container.appendChild(card);
+        });
+      }
+
+      function renderLog() {
+        const logList = document.getElementById('log-list');
+        const countBadge = document.getElementById('log-count');
+        logList.innerHTML = '';
+        countBadge.textContent = `${state.logs.length} events`;
+
+        state.logs.forEach(item => {
+          const li = document.createElement('li');
+          li.className = `log-item ${item.type}`;
+          li.innerHTML = `
+            <span class="log-item-time">[${item.time}]</span>
+            <span class="log-item-text">${item.text}</span>
+          `;
+          logList.appendChild(li);
+        });
+      }
+
+      function updateDashboard() {
+        document.getElementById('clock-time').textContent = formatTime(state.simTimeMinutes);
+        const summary = evaluatePlan(state);
+        renderDropdowns();
+        renderKPIs(summary);
+        renderSVGMap();
+        renderAffectedList();
+        renderOptions();
+      }
+
+      /* ------------------------------------------------------------------------
+         THEME SWITCHER
+         ------------------------------------------------------------------------ */
+      function setupThemeToggle() {
+        const btn = document.getElementById('btn-theme-toggle');
+        let currentTheme = 'dark';
+
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+          currentTheme = 'light';
+          document.documentElement.setAttribute('data-theme', 'light');
+          btn.innerHTML = '<span>🌙</span> Dark';
+        }
+
+        btn.addEventListener('click', () => {
+          if (currentTheme === 'dark') {
+            currentTheme = 'light';
+            document.documentElement.setAttribute('data-theme', 'light');
+            btn.innerHTML = '<span>🌙</span> Dark';
+          } else {
+            currentTheme = 'dark';
+            document.documentElement.setAttribute('data-theme', 'dark');
+            btn.innerHTML = '<span>☀️</span> Light';
+          }
+          updateDashboard();
+        });
+      }
+
+      /* ------------------------------------------------------------------------
+         EVENT BINDINGS
+         ------------------------------------------------------------------------ */
+      function setupEventListeners() {
+        document.getElementById('select-vehicle').addEventListener('change', (e) => {
+          state.selectedVehicleId = e.target.value;
+        });
+
+        document.getElementById('select-delivery').addEventListener('change', (e) => {
+          state.selectedDeliveryId = e.target.value;
+          renderAffectedList();
+          renderSVGMap();
+        });
+
+        // 4 Disruption buttons
+        document.getElementById('btn-disrupt-road').addEventListener('click', triggerRoadClosure);
+        document.getElementById('btn-disrupt-break').addEventListener('click', triggerVehicleBreakdown);
+        document.getElementById('btn-disrupt-weather').addEventListener('click', triggerSevereWeather);
+        document.getElementById('btn-disrupt-customer').addEventListener('click', triggerCustomerChange);
+
+        // Reset Demo
+        document.getElementById('btn-reset-demo').addEventListener('click', () => {
+          initBaselineState();
+          updateDashboard();
+          addLog('log-action', '↺ Demo reset to baseline plan (09:00, all disruptions cleared).');
+        });
+      }
+
+      /* ------------------------------------------------------------------------
+         APP BOOTSTRAP
+         ------------------------------------------------------------------------ */
+      setupThemeToggle();
+      setupEventListeners();
+      initBaselineState();
+      updateDashboard();
+      renderLog();
+
+    })();
+  </script>
+</body>
+</html>
