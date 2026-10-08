@@ -1,0 +1,26 @@
+{
+ "_note": "Sample operation. Edit coordinates/names to model your own city. Times are minutes after 09:00.",
+ "depot": {"name": "Central Depot", "lat": 11.0168, "lng": 76.9558},
+ "vehicles": [
+  {"id": "V1", "name": "V1", "color": "#2563eb", "role": "fleet",   "capacity": 5, "start_delay": 0},
+  {"id": "V2", "name": "V2", "color": "#ea7a1a", "role": "fleet",   "capacity": 5, "start_delay": 0},
+  {"id": "V3", "name": "V3", "color": "#16a34a", "role": "fleet",   "capacity": 5, "start_delay": 0},
+  {"id": "V4", "name": "V4", "color": "#9333ea", "role": "fleet",   "capacity": 5, "start_delay": 0},
+  {"id": "V5", "name": "V5 (standby)", "color": "#0d9488", "role": "standby", "capacity": 5, "start_delay": 15},
+  {"id": "V6", "name": "V6 (standby)", "color": "#db2777", "role": "standby", "capacity": 5, "start_delay": 20}
+ ],
+ "deliveries": [
+  {"id": 1,  "customer": "City Hospital",   "address": "North zone",      "lat": 11.0510, "lng": 76.9640, "priority": 3, "perishable": 1, "slack": 20, "vehicle": "V1"},
+  {"id": 2,  "customer": "FreshMart",       "address": "North zone",      "lat": 11.0705, "lng": 76.9930, "priority": 1, "perishable": 0, "slack": 30, "vehicle": "V1"},
+  {"id": 3,  "customer": "Sunrise Hotel",   "address": "North-east zone", "lat": 11.0600, "lng": 77.0330, "priority": 2, "perishable": 0, "slack": 25, "vehicle": "V1"},
+  {"id": 4,  "customer": "Dr. Rao Clinic",  "address": "East zone",       "lat": 11.0230, "lng": 77.0120, "priority": 3, "perishable": 1, "slack": 20, "vehicle": "V2"},
+  {"id": 5,  "customer": "Tech Park Cafe",  "address": "East zone",       "lat": 11.0080, "lng": 77.0520, "priority": 2, "perishable": 0, "slack": 35, "vehicle": "V2"},
+  {"id": 6,  "customer": "School Canteen",  "address": "East zone",       "lat": 11.0260, "lng": 77.0900, "priority": 1, "perishable": 0, "slack": 30, "vehicle": "V2"},
+  {"id": 7,  "customer": "Electro World",   "address": "South-east zone", "lat": 10.9800, "lng": 76.9900, "priority": 2, "perishable": 0, "slack": 25, "vehicle": "V3"},
+  {"id": 8,  "customer": "Bakery Hub",      "address": "South zone",      "lat": 10.9450, "lng": 77.0200, "priority": 1, "perishable": 0, "slack": 40, "vehicle": "V3"},
+  {"id": 9,  "customer": "Pharma Depot",    "address": "South-east zone", "lat": 10.9650, "lng": 77.0700, "priority": 3, "perishable": 1, "slack": 30, "vehicle": "V3"},
+  {"id": 10, "customer": "Green Grocers",   "address": "West zone",       "lat": 10.9950, "lng": 76.9100, "priority": 2, "perishable": 0, "slack": 30, "vehicle": "V4"},
+  {"id": 11, "customer": "Home Order #118", "address": "South-west zone", "lat": 10.9600, "lng": 76.9000, "priority": 1, "perishable": 0, "slack": 35, "vehicle": "V4"},
+  {"id": 12, "customer": "Cold Store",      "address": "South zone",      "lat": 10.9300, "lng": 76.9500, "priority": 2, "perishable": 0, "slack": 45, "vehicle": "V4"}
+ ]
+}

@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Disruption-Aware Logistics Planner</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>
+:root{--bg:#f3f5f8;--card:#fff;--tx:#14202b;--mu:#5c6b7a;--bd:#dce2e9;--ok:#1d9e75;--rk:#e0980e;--lt:#d64545;--st:#6b7280;--ac:#2563eb}
+@media (prefers-color-scheme:dark){:root{--bg:#0d1319;--card:#151d25;--tx:#e6edf3;--mu:#8b9bab;--bd:#263340;--ac:#5b8def}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:14px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;padding:14px 18px}
+h1{font-size:18px;margin:0}header p{margin:0;color:var(--mu);font-size:12px}
+.clock{font-variant-numeric:tabular-nums;font-weight:600;background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:6px 10px}
+button{font:inherit;cursor:pointer;border-radius:8px;border:1px solid var(--bd);background:var(--card);color:var(--tx);padding:7px 10px}
+button:hover{border-color:var(--ac)}button.pri{background:var(--ac);color:#fff;border-color:var(--ac)}
+.grid{display:grid;gap:14px;padding:0 18px 18px;grid-template-columns:280px minmax(0,1fr) 350px;align-items:start}
+@media(max-width:1150px){.grid{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:14px;margin-bottom:14px}
+.step{display:flex;align-items:center;gap:8px;font-weight:700;margin-bottom:10px}
+.step b{background:var(--ac);color:#fff;border-radius:50%;min-width:22px;height:22px;display:grid;place-items:center;font-size:12px}
+label{display:block;font-size:11px;color:var(--mu);margin:8px 0 3px}
+select,input{width:100%;font:inherit;padding:6px;border-radius:8px;border:1px solid var(--bd);background:var(--card);color:var(--tx)}
+.hint{font-size:11px;color:var(--mu);margin:6px 0}
+.list{list-style:none;margin:0;padding:0;max-height:220px;overflow:auto}
+.list li{padding:6px 0;border-top:1px solid var(--bd);font-size:12px;display:flex;justify-content:space-between;gap:6px}
+.list time{color:var(--mu);margin-right:6px;font-variant-numeric:tabular-nums}
+.kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:14px}
+@media(max-width:700px){.kpis{grid-template-columns:repeat(3,1fr)}}
+.kpi{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:10px 12px}
+.kpi span{font-size:11px;color:var(--mu)}.kpi div{font-size:24px;font-weight:700;line-height:1.1}
+#map{height:440px;border-radius:10px;background:#e8edf2}
+.pin{width:30px;height:30px;border-radius:50%;color:#fff;font:700 12px/24px system-ui;text-align:center;border:3px solid;box-shadow:0 1px 4px #0006}
+.pin.selp{outline:3px solid var(--ac);outline-offset:2px}.pin.pulse{animation:pl 1.4s infinite}
+@keyframes pl{0%{box-shadow:0 0 0 0 #d6454599}100%{box-shadow:0 0 0 14px #d6454500}}
+.dis,.dep{font-size:22px;text-align:center;line-height:28px;filter:drop-shadow(0 1px 2px #0008)}
+.legend{display:flex;flex-wrap:wrap;gap:12px;font-size:11px;color:var(--mu);margin-top:8px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px}
+.row{border:1px solid var(--bd);border-left:4px solid var(--st);border-radius:8px;padding:9px 10px;margin-bottom:8px;cursor:pointer}
+.row.late{border-left-color:var(--lt)}.row.risk{border-left-color:var(--rk)}.row.sel{box-shadow:0 0 0 2px var(--ac)}
+.row .t{display:flex;justify-content:space-between;gap:8px;font-weight:600}.row small{display:block;color:var(--mu);font-size:12px;margin-top:2px}
+.pill{font-size:10px;font-weight:700;border-radius:20px;padding:2px 8px;color:#fff;white-space:nowrap;align-self:flex-start}
+.Critical{background:var(--lt)}.High{background:var(--rk)}.Medium{background:var(--ac)}
+.tag,.chip{display:inline-block;font-size:10px;border:1px solid var(--bd);border-radius:6px;padding:0 5px;margin:3px 4px 0 0;color:var(--mu)}
+.chip{font-size:11px;padding:2px 7px;cursor:pointer;color:var(--tx);border-width:2px}.chip.dis{border-color:var(--lt);cursor:default}
+.arr{color:var(--mu);margin:0 2px}
+.why{margin:0;padding-left:18px;font-size:12px}.why li{margin:3px 0}
+.opt{border:1px solid var(--bd);border-radius:10px;padding:11px;margin-bottom:10px}
+.opt.best{border-color:var(--ok);box-shadow:0 0 0 1px var(--ok)}
+.opt h4{margin:0 0 3px;font-size:14px;display:flex;justify-content:space-between;gap:6px}.opt p{margin:0 0 8px;color:var(--mu);font-size:12px}
+.best-b{background:var(--ok);color:#fff;font-size:10px;border-radius:20px;padding:2px 8px;white-space:nowrap;align-self:flex-start}
+.m{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:9px}.m span{background:var(--bg);border-radius:6px;padding:3px 7px;font-size:11px}
+.opt button{width:100%}.empty{color:var(--mu);font-size:13px;padding:6px 0}
+.msg{border:1px solid var(--bd);border-radius:8px;padding:8px 10px;margin-bottom:8px;font-size:12px}.msg p{margin:3px 0 6px;color:var(--mu)}.msg button{font-size:11px;padding:3px 8px}
+svg{display:block;width:100%;height:auto}
+#toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:#14202b;color:#fff;padding:8px 14px;border-radius:8px;font-size:13px;opacity:0;pointer-events:none;transition:.2s;z-index:9999}#toast.on{opacity:1}
+</style></head><body>
+<header>
+ <div><h1>🚚 Disruption-Aware Logistics Planner</h1><p>What changed → What is affected → What should we do next</p></div>
+ <div style="display:flex;gap:8px;align-items:center"><span class="clock" id="clock"></span><button onclick="resetAll()">↺ Reset demo data</button></div>
+</header>
+<div class="grid">
+ <div>
+  <div class="card"><div class="step"><b>1</b>What changed?</div>
+   <label>Report a disruption</label>
+   <select id="dType" onchange="onType()">
+    <option value="road_closure">🚧 Road closure</option><option value="weather">🌧️ Severe weather</option>
+    <option value="vehicle_breakdown">🔧 Vehicle breakdown</option><option value="customer_change">📝 Customer change</option></select>
+   <div id="gVeh"><label id="lVeh">Vehicle</label><select id="dVeh"></select></div>
+   <div id="gDel"><label>Delivery</label><select id="dDel"></select></div>
+   <div id="gRad"><label>Affected radius (metres)</label><input id="dRad" type="number" value="900" min="100" step="100"></div>
+   <div id="gMin"><label id="lMin">Extra delay (minutes)</label><input id="dMin" type="number" value="35" min="1"></div>
+   <div class="hint" id="locInfo"></div>
+   <button class="pri" style="width:100%" onclick="addD()">Report disruption</button>
+  </div>
+  <div class="card"><div class="step" style="margin-bottom:4px">Active disruptions</div><ul class="list" id="dis"></ul></div>
+  <div class="card"><div class="step" style="margin-bottom:4px">Change log</div><ul class="list" id="log"></ul></div>
+ </div>
+ <div>
+  <div class="kpis" id="kpis"></div>
+  <div class="card"><div id="map"></div>
+   <div class="legend"><span><i style="background:var(--ok)"></i>On time</span><span><i style="background:var(--rk)"></i>At risk</span><span><i style="background:var(--lt)"></i>Late</span><span><i style="background:var(--st)"></i>No vehicle</span><span>Ring colour = vehicle</span><span>Click a stop for details</span></div></div>
+  <div class="card"><div class="step" style="margin-bottom:4px">Vehicle timeline <span style="font-weight:400;color:var(--mu);font-size:12px">(▾ deadline, red bar = minutes late)</span></div><div id="tl"></div></div>
+  <div class="card"><div class="step"><b>2</b>What is affected? <span style="font-weight:400;color:var(--mu);font-size:12px">(ranked by urgency)</span></div><div id="aff"></div></div>
+ </div>
+ <div>
+  <div class="card" id="selcard"></div>
+  <div class="card"><div class="step"><b>3</b><span id="optT">What should we do next?</span><button id="showAll" style="margin-left:auto;font-size:11px;padding:3px 8px;display:none" onclick="clr()">Show all</button></div><div id="opts"></div></div>
+  <div class="card"><div class="step">✉️ Customer messages</div><div id="msgs"></div></div>
+ </div>
+</div>
+<div id="toast"></div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+const COL={ok:'#1d9e75',risk:'#e0980e',late:'#d64545',stranded:'#6b7280'},LBL={ok:'On time',risk:'At risk',late:'Late',stranded:'No vehicle'};
+const fmt=t=>{const m=Math.round(t);return String(9+Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0')};
+let ST,sel=null,pick=false,pending=null,map=null,layer=null,pend=null,fitted=false,OPTS=[];
+async function api(path,method='GET',body){const r=await fetch(path,{method,headers:{'Content-Type':'application/json'},body:body?JSON.stringify(body):undefined});const j=await r.json();if(!r.ok)throw new Error(j.error||r.statusText);return j}
+function toast(m){const t=$('toast');t.textContent=m;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),2600)}
+const D=id=>ST.deliveries.find(d=>d.id===id),V=id=>ST.vehicles.find(v=>v.id===id);
+
+function initMap(){
+ if(typeof L==='undefined'){$('map').innerHTML='<div class="empty" style="padding:20px">The map library needs an internet connection to load. Everything else still works.</div>';return}
+ map=L.map('map').setView([ST.depot.lat,ST.depot.lng],12);
+ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap contributors'}).addTo(map);
+ layer=L.layerGroup().addTo(map);pend=L.layerGroup().addTo(map);
+ map.on('click',e=>{const t=$('dType').value;if(t==='road_closure'||t==='weather'){pending={lat:e.latlng.lat,lng:e.latlng.lng};drawPending()}})}
+function drawPending(){if(!pend)return;pend.clearLayers();
+ if(pending){L.circle([pending.lat,pending.lng],{radius:+$('dRad').value||900,color:'#7c3aed',dashArray:'4 6',fillOpacity:.1}).addTo(pend);L.marker([pending.lat,pending.lng]).addTo(pend)}
+ $('locInfo').textContent=pending?`📍 Location set (${pending.lat.toFixed(4)}, ${pending.lng.toFixed(4)}). Click the map to move it.`:(['road_closure','weather'].includes($('dType').value)?'Click the map to place it, or leave empty to auto-place on the chosen vehicle’s route.':'')}
+function onType(){const t=$('dType').value,loc=t==='road_closure'||t==='weather';
+ $('gVeh').style.display=loc||t==='vehicle_breakdown'?'':'none';$('gDel').style.display=t==='customer_change'?'':'none';
+ $('gRad').style.display=loc?'':'none';$('gMin').style.display=t==='vehicle_breakdown'?'none':'';
+ $('lVeh').textContent=loc?'Auto-place on route of (if map not clicked)':'Vehicle';
+ $('lMin').textContent=t==='customer_change'?'Move deadline earlier by (minutes)':'Extra delay on affected legs (minutes)';
+ $('dMin').value={road_closure:35,weather:15,customer_change:40}[t]||25;if(!loc)pending=null;drawPending()}
+function autoPlace(vid){const v=V(vid);if(!v||!v.route.length)return null;const a=v.route.length>1?D(v.route[0]):ST.depot,b=D(v.route[v.route.length>1?1:0]);return{lat:(a.lat+b.lat)/2,lng:(a.lng+b.lng)/2}}
+async function addD(){const t=$('dType').value;let b={type:t};
+ if(t==='road_closure'||t==='weather'){const p=pending||autoPlace($('dVeh').value);if(!p)return toast('That vehicle has no stops. Pick another or click the map.');b={...b,...p,radius_m:+$('dRad').value,minutes:+$('dMin').value}}
+ else if(t==='vehicle_breakdown')b.vehicle_id=$('dVeh').value;else{b.delivery_id=+$('dDel').value;b.minutes=+$('dMin').value}
+ try{await api('/api/disruptions','POST',b);pending=null;pick=true;await load()}catch(e){toast(e.message)}}
+async function resolveD(id){try{await api('/api/disruptions/'+id,'DELETE');pick=true;await load()}catch(e){toast(e.message)}}
+async function resetAll(){await api('/api/reset','POST',{});sel=null;pending=null;fitted=false;await load()}
+function selStop(id){sel={t:'stop',id};load()}function selVeh(id){sel={t:'vehicle',id};load()}function clr(){sel=null;load()}
+
+async function load(){
+ ST=await api('/api/state');
+ if(!window._init){window._init=1;$('dVeh').innerHTML=ST.vehicles.map(v=>`<option value="${v.id}">${v.name}</option>`).join('');$('dDel').innerHTML=ST.deliveries.map(d=>`<option value="${d.id}">${d.id}. ${d.customer}</option>`).join('');$('dVeh').value='V2';$('dDel').value='4';initMap();onType()}
+ if(pick){pick=false;const tp=ST.deliveries.filter(d=>d.status!=='ok').sort((a,b)=>b.score-a.score)[0];sel=tp?{t:'stop',id:tp.id}:null}
+ drawMain();
+ const sc=sel?`${sel.t}:${sel.id}`:'';
+ const [ex,rec]=await Promise.all([sel?api(`/api/explain?type=${sel.t}&id=${sel.id}`):null,api('/api/recommendations'+(sc?'?scope='+sc:''))]);
+ drawSel(ex);drawOpts(rec)}
+
+function drawMain(){
+ const k=ST.kpis;$('clock').textContent='Plan time '+fmt(ST.clock);
+ $('kpis').innerHTML=[['On time',k.ok,'ok'],['At risk',k.risk,'rk'],['Late',k.late,'lt'],['No vehicle',k.stranded,'st'],['Vehicles active',k.vehicles_active+'/'+k.vehicles_total,'ac'],['Route km',ST.km,'tx']].map(x=>`<div class="kpi"><span>${x[0]}</span><div style="color:var(--${x[2]})">${x[1]}</div></div>`).join('');
+ $('log').innerHTML=ST.log.map(l=>`<li><span><time>${fmt(l.clock)}</time>${l.text}</span></li>`).join('');
+ $('dis').innerHTML=ST.disruptions.length?ST.disruptions.map(x=>`<li><span>${x.label}${x.minutes?' · +'+Math.round(x.minutes)+' min':''}</span><button style="font-size:11px;padding:2px 7px" onclick="resolveD(${x.id})">Resolve</button></li>`).join(''):'<li class="empty">None. The plan is running as scheduled.</li>';
+ drawMap();drawTimeline();
+ const rows=ST.deliveries.filter(d=>d.status!=='ok'||d.changed).sort((a,b)=>b.score-a.score);
+ $('aff').innerHTML=rows.length?rows.map(d=>{const v=V(d.vehicle);
+  const line=d.status==='stranded'?`No vehicle: ${v.name} is down`:d.status==='late'?`ETA ${fmt(d.eta)} · due ${fmt(d.deadline)} · <b style="color:var(--lt)">${Math.round(d.late_by)} min late</b>`:`ETA ${fmt(d.eta)} · due ${fmt(d.deadline)} · ${d.status==='risk'?'only '+Math.max(0,Math.round(d.deadline-d.eta))+' min spare':'on time'}`;
+  return `<div class="row ${d.status}${sel&&sel.t==='stop'&&sel.id===d.id?' sel':''}" onclick="selStop(${d.id})"><div class="t"><span>${d.id}. ${d.customer}</span><span class="pill ${d.urgency}">${d.urgency}</span></div><small>${line}</small><div>${d.perishable?'<span class="tag">Perishable</span>':''}${d.priority===3?'<span class="tag">High-priority customer</span>':''}<span class="tag">${v.name}</span>${d.downstream?`<span class="tag">Blocks ${d.downstream} later stop${d.downstream>1?'s':''}</span>`:''}${d.changed?'<span class="tag">Customer changed</span>':''}${d.notified?'<span class="tag">Customer notified</span>':''}</div></div>`}).join(''):'<div class="empty">✅ All deliveries on track. Report a disruption on the left.</div>';
+ $('msgs').innerHTML=ST.messages.length?ST.messages.map((m,i)=>`<div class="msg"><b>${m.customer}</b><p>${m.text}</p><button onclick="cp(${i})">Copy message</button></div>`).join(''):'<div class="empty">No customer messages needed.</div>'}
+function cp(i){try{navigator.clipboard.writeText(ST.messages[i].text).then(()=>toast('Message copied'),()=>toast('Select the text and copy it'))}catch(e){toast('Select the text and copy it')}}
+
+function drawMap(){if(!map)return;layer.clearLayers();const dep=ST.depot;
+ ST.vehicles.forEach(v=>{if(!v.route.length)return;const pts=[[dep.lat,dep.lng],...v.route.map(id=>[D(id).lat,D(id).lng])];
+  L.polyline(pts,{color:v.down?'#6b7280':v.color,weight:sel&&sel.t==='vehicle'&&sel.id===v.id?8:4,opacity:.8,dashArray:v.down?'4 9':null}).addTo(layer)});
+ ST.disruptions.forEach(x=>{if(x.lat==null)return;const c=x.type==='road_closure'?'#d64545':'#3b82f6';
+  L.circle([x.lat,x.lng],{radius:x.radius_m,color:c,weight:2,dashArray:'6 6',fillOpacity:.12}).addTo(layer);
+  L.marker([x.lat,x.lng],{icon:L.divIcon({className:'',html:`<div class="dis">${x.type==='road_closure'?'🚧':'🌧️'}</div>`,iconSize:[28,28],iconAnchor:[14,14]})}).addTo(layer).bindTooltip(x.label)});
+ L.marker([dep.lat,dep.lng],{icon:L.divIcon({className:'',html:'<div class="dep">🏭</div>',iconSize:[30,30],iconAnchor:[15,15]})}).addTo(layer).bindTooltip(dep.name);
+ ST.deliveries.forEach(d=>{const v=V(d.vehicle),bad=d.status==='late'||d.status==='stranded',isSel=sel&&sel.t==='stop'&&sel.id===d.id;
+  L.marker([d.lat,d.lng],{icon:L.divIcon({className:'',html:`<div class="pin${isSel?' selp':''}${bad?' pulse':''}" style="background:${COL[d.status]};border-color:${v.down?'#6b7280':v.color}">${d.id}</div>`,iconSize:[30,30],iconAnchor:[15,15]})})
+  .addTo(layer).bindTooltip(`${d.customer} · ${d.eta!=null?'ETA '+fmt(d.eta)+' · ':''}due ${fmt(d.deadline)}`).on('click',()=>selStop(d.id))});
+ if(!fitted){map.fitBounds(L.latLngBounds([[dep.lat,dep.lng],...ST.deliveries.map(d=>[d.lat,d.lng])]).pad(.12));fitted=true}}
+
+function drawTimeline(){
+ const vs=ST.vehicles.filter(v=>v.route.length||v.down);let mx=140;ST.deliveries.forEach(d=>{if(d.eta!=null)mx=Math.max(mx,d.eta+16);mx=Math.max(mx,d.deadline+8)});
+ const X=t=>50+t/mx*655;let h=`<svg viewBox="0 0 720 ${vs.length*44+36}">`;
+ for(let t=0;t<=mx;t+=30)h+=`<line x1="${X(t)}" x2="${X(t)}" y1="16" y2="${vs.length*44+24}" stroke="var(--bd)"/><text x="${X(t)}" y="11" font-size="10" text-anchor="middle" fill="var(--mu)">${fmt(t)}</text>`;
+ vs.forEach((v,i)=>{const y=44+i*44,sv=sel&&sel.t==='vehicle'&&sel.id===v.id;
+  h+=`<text x="6" y="${y+4}" font-size="12" font-weight="700" style="cursor:pointer" ${sv?'text-decoration="underline"':''} onclick="selVeh('${v.id}')" fill="${v.down?'#6b7280':v.color}">${v.id}</text><line x1="50" x2="710" y1="${y}" y2="${y}" stroke="var(--bd)" stroke-width="2"/>`;
+  if(v.down)h+=`<text x="60" y="${y+4}" font-size="11" fill="var(--mu)">⚠ breakdown · ${v.route.length?v.route.length+' stops stranded':'out of service'}</text>`;
+  else v.route.forEach(id=>{const d=D(id),w=Math.max(20,6/mx*655);
+   if(d.eta>d.deadline)h+=`<line x1="${X(d.deadline)}" x2="${X(d.eta)}" y1="${y}" y2="${y}" stroke="${COL.late}" stroke-width="4"/>`;
+   h+=`<g style="cursor:pointer" onclick="selStop(${id})"><title>${d.customer}: ETA ${fmt(d.eta)}, due ${fmt(d.deadline)}</title><rect x="${X(d.eta)}" y="${y-11}" width="${w}" height="22" rx="5" fill="${COL[d.status]}"/><text x="${X(d.eta)+w/2}" y="${y+4}" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">${id}</text><text x="${X(d.deadline)}" y="${y-14}" font-size="11" text-anchor="middle" fill="var(--tx)">▾</text></g>`})});
+ $('tl').innerHTML=h+'</svg>'}
+
+function drawSel(ex){const b=$('selcard');
+ if(!sel||!ex){b.innerHTML='<div class="step" style="margin-bottom:4px">🔎 Selected section</div><div class="empty">Click any delivery (map, timeline or list) or a vehicle name in the timeline to see why it is affected and how to fix it.</div>';return}
+ if(ex.type==='stop'){const chain=ex.chain.map(n=>n.kind==='disruption'?`<span class="chip dis">⚠ ${n.label}</span>`:`<span class="chip" style="border-color:${COL[n.status]}" onclick="selStop(${n.id})">${n.id}. ${n.label}</span>`).join('<span class="arr">→</span>');
+  b.innerHTML=`<div class="step" style="margin-bottom:4px">🔎 ${ex.title} <span class="pill" style="background:${COL[ex.status]}">${LBL[ex.status]}</span></div><small style="color:var(--mu)">${ex.vehicle} · ${ex.eta?'ETA '+ex.eta+' · ':''}due ${ex.deadline} · planned ${ex.planned}</small><div style="font-weight:600;margin:8px 0 3px">Dependency chain</div><div>${chain}</div><div style="font-weight:600;margin:8px 0 3px">Why it is affected</div><ul class="why">${ex.reasons.map(r=>`<li>${r}</li>`).join('')}</ul>`;return}
+ b.innerHTML=`<div class="step" style="margin-bottom:4px">🔎 ${ex.title} <span class="pill" style="background:${ex.down?'#6b7280':V(ex.id).color}">${ex.down?'Down':'Active'}</span></div><div style="font-weight:600;margin:6px 0 3px">Why it is affected</div><ul class="why">${ex.reasons.map(r=>`<li>${r}</li>`).join('')}</ul><div style="font-weight:600;margin:8px 0 2px">Its deliveries (click one)</div>${ex.stops.map(s=>`<span class="chip" style="border-color:${COL[s.status]}" onclick="selStop(${s.id})">${s.id}. ${s.label} · ${LBL[s.status]}</span>`).join('')||'<span class="empty">No deliveries left.</span>'}`}
+
+function drawOpts(rec){OPTS=rec.options;const sc=!!sel;
+ $('showAll').style.display=sc?'':'none';$('optT').textContent=sc?'Fixes for '+(sel.t==='stop'?D(sel.id).customer:sel.id):'What should we do next?';
+ $('opts').innerHTML=OPTS.length?OPTS.map((o,i)=>{const m=o.m;
+  const note=o.keep?'':m.left?`<div style="font-size:11px;color:var(--rk);margin-bottom:8px">⚠ ${m.left} deliver${m.left>1?'ies':'y'} still late${o.full?'. Customers will be notified.':'. Pair with a customer notification.'}</div>`:'<div style="font-size:11px;color:var(--ok);margin-bottom:8px">✅ Clears every late or unserved delivery.</div>';
+  return `<div class="opt ${o.recommended?'best':''}"><h4><span>${o.title}</span>${o.recommended?'<span class="best-b">Recommended</span>':''}</h4><p>${o.desc}</p><div class="m">${m.scope_before!=null?`<span>This section: ${m.scope_before} → <b>${m.scope_after}</b></span>`:''}${m.one?`<span>This delivery: <b>${LBL[m.one.status]}</b>${m.one.eta?' · ETA '+m.one.eta:''}</span>`:''}<span>All late: ${m.late_before} → <b>${m.late_after}</b></span><span>No vehicle: ${m.stranded_before} → <b>${m.stranded_after}</b></span><span>${m.km_delta>=0?'+':''}${m.km_delta} km</span></div>${note}<button class="pri" onclick="applyOpt(${i})">Apply this action</button></div>`}).join(''):`<div class="empty">${sc?'This selection has no late or unserved deliveries, so no action is needed.':'No action needed right now. The plan is holding.'}</div>`}
+async function applyOpt(i){const o=OPTS[i];try{await api('/api/actions/apply','POST',{assignment:o.assignment,notify:!!o.notify,title:o.title});pick=true;await load();toast('Plan updated')}catch(e){toast(e.message)}}
+load().catch(e=>toast('Cannot reach the server: '+e.message));
+</script></body></html>
