@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#111827">
+  <meta name="description" content="LOGIX AI — Disruption-aware logistics operator control center">
+  <title>LOGIX AI | Operator Control Center</title>
+
+  <link rel="preconnect" href="https://unpkg.com">
+  <link rel="preconnect" href="https://tile.openstreetmap.org">
+
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""
+  >
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+<div class="app-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">L</div>
+      <div>
+        <div class="brand-name">LOGIX AI</div>
+        <div class="brand-subtitle">Intelligent Logistics</div>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Operations</div>
+
+      <nav class="sidebar-nav" aria-label="Main navigation">
+        <button class="nav-item active" data-page="dashboard" aria-current="page">
+          <span class="nav-icon">▦</span>
+          <span class="nav-text">Dashboard</span>
+        </button>
+
+        <button class="nav-item" data-page="network">
+          <span class="nav-icon">◎</span>
+          <span class="nav-text">Network Overview</span>
+        </button>
+
+        <button class="nav-item" data-page="impact">
+          <span class="nav-icon">⚡</span>
+          <span class="nav-text">Impact Analysis</span>
+          <span class="nav-badge" id="impactNavBadge">0</span>
+        </button>
+
+        <button class="nav-item" data-page="decision">
+          <span class="nav-icon">◈</span>
+          <span class="nav-text">Decision Center</span>
+          <span class="nav-badge" id="decisionNavBadge">0</span>
+        </button>
+
+        <button class="nav-item" data-page="whatif">
+          <span class="nav-icon">⇄</span>
+          <span class="nav-text">What-if Planning</span>
+        </button>
+      </nav>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Control &amp; Intelligence</div>
+
+      <nav class="sidebar-nav" aria-label="Control navigation">
+        <button class="nav-item" data-page="triggers">
+          <span class="nav-icon">⚙</span>
+          <span class="nav-text">Trigger Rules</span>
+        </button>
+
+        <button class="nav-item" data-page="decisions">
+          <span class="nav-icon">☷</span>
+          <span class="nav-text">Decision Log</span>
+        </button>
+
+        <button class="nav-item" data-page="handover">
+          <span class="nav-icon">⇥</span>
+          <span class="nav-text">Shift Handover</span>
+        </button>
+
+        <button class="nav-item" data-page="simulation">
+          <span class="nav-icon">▶</span>
+          <span class="nav-text">Simulation Lab</span>
+        </button>
+
+        <button class="nav-item" data-page="alerts">
+          <span class="nav-icon">♧</span>
+          <span class="nav-text">Alerts</span>
+          <span class="nav-badge" id="alertNavBadge">0</span>
+        </button>
+      </nav>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="system-status">
+        <span class="status-dot pulse" id="sidebarStatusDot"></span>
+        <div>
+          <div class="system-status-text" id="sidebarStatusText">Connecting...</div>
+          <div class="system-status-subtitle" id="sidebarStatusSubtitle">
+            Backend connection
+          </div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <div class="sidebar-backdrop" id="sidebarBackdrop" hidden></div>
+
+  <!-- MAIN APPLICATION -->
+  <main class="main-content">
+
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <button
+          class="icon-button mobile-menu-button"
+          id="mobileMenuBtn"
+          aria-label="Open navigation"
+          aria-controls="sidebar"
+          aria-expanded="false"
+        >☰</button>
+
+        <div>
+          <h1 class="topbar-title" id="topbarTitle">Operator Dashboard</h1>
+          <div class="breadcrumb" id="breadcrumb">Operations / Dashboard</div>
+        </div>
+      </div>
+
+      <div class="topbar-right">
+        <div class="system-pill">
+          <span class="status-dot" id="backendStatusDot"></span>
+          <span id="backendStatusText">Connecting</span>
+        </div>
+
+        <div class="live-clock" id="liveClock">--:--:--</div>
+
+        <div class="topbar-actions">
+          <button
+            class="icon-button"
+            id="notificationBtn"
+            aria-label="Open alerts"
+            title="Open alerts"
+          >
+            ♧
+            <span class="notification-indicator" id="notificationIndicator"></span>
+          </button>
+
+          <button
+            class="icon-button"
+            id="profileBtn"
+            aria-label="Open operator profile"
+            title="Operator profile"
+          >♙</button>
+        </div>
+
+        <div class="operator-profile">
+          <div class="profile-avatar">OP</div>
+          <div class="profile-details">
+            <div class="profile-name" id="operatorNameLabel">Control Operator</div>
+            <div class="profile-role">Operations Manager</div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="content">
+
+      <!-- DASHBOARD -->
+      <section class="page active" id="page-dashboard" data-page-section="dashboard">
+        <div class="page-header">
+          <div>
+            <h2 class="page-title">Operations Dashboard</h2>
+            <p class="page-subtitle">
+              Monitor shipments, drivers, disruptions and operational decisions.
+            </p>
+          </div>
+          <div class="flex gap-2 flex-wrap">
+            <button class="btn btn-secondary" id="refreshDashboardBtn">↻ Refresh Data</button>
+            <button class="btn btn-primary" id="openSimulationBtn">▶ Run Simulation</button>
+          </div>
+        </div>
+
+        <div class="disruption-banner" id="criticalBanner">
+          <div class="disruption-icon">⚠</div>
+          <div class="disruption-content">
+            <h3 class="disruption-title" id="criticalBannerTitle">Monitoring logistics network</h3>
+            <p class="disruption-message" id="criticalBannerMessage">
+              Waiting for the latest backend information.
+            </p>
+          </div>
+          <div class="disruption-actions">
+            <button class="btn btn-danger btn-sm" data-go-page="impact">Review Impact</button>
+            <button class="btn btn-secondary btn-sm" id="dismissBannerBtn">Dismiss</button>
+          </div>
+        </div>
+
+        <div class="stats-grid">
+          <article class="stat-card">
+            <div class="stat-top">
+              <span class="stat-label">Total Shipments</span>
+              <span class="stat-icon">▤</span>
+            </div>
+            <div class="stat-value" id="totalOrders">0</div>
+            <div class="stat-description">Shipments in current dataset</div>
+          </article>
+
+          <article class="stat-card">
+            <div class="stat-top">
+              <span class="stat-label">Active Drivers</span>
+              <span class="stat-icon success">🚚</span>
+            </div>
+            <div class="stat-value" id="activeDrivers">0</div>
+            <div class="stat-description">Drivers with active status</div>
+          </article>
+
+          <article class="stat-card">
+            <div class="stat-top">
+              <span class="stat-label">At-Risk Shipments</span>
+              <span class="stat-icon danger">⚠</span>
+            </div>
+            <div class="stat-value" id="atRiskOrders">0</div>
+            <div class="stat-description">High or critical risk</div>
+          </article>
+
+          <article class="stat-card">
+            <div class="stat-top">
+              <span class="stat-label">On-Time Rate</span>
+              <span class="stat-icon success">✓</span>
+            </div>
+            <div class="stat-value" id="onTimeRate">0%</div>
+            <div class="stat-description">Based on available shipment data</div>
+          </article>
+        </div>
+
+        <div class="dashboard-grid">
+          <article class="card">
+            <div class="card-header">
+              <div>
+                <h3 class="card-title">Live Logistics Map</h3>
+                <p class="card-description">Driver locations received from the backend</p>
+              </div>
+              <span class="badge badge-info" id="mapLiveStatus">Waiting for GPS</span>
+            </div>
+
+            <div class="map-container">
+              <div id="operatorMap" class="operator-map" aria-label="Live driver map"></div>
+              <div class="map-toolbar">
+                <button class="map-control" id="fitMapBtn">Fit Drivers</button>
+                <button class="map-control" id="resetMapBtn">Reset View</button>
+              </div>
+            </div>
+
+            <div class="map-legend">
+              <span class="legend-item"><span class="legend-dot success"></span> Active</span>
+              <span class="legend-item"><span class="legend-dot warning"></span> Delayed</span>
+              <span class="legend-item"><span class="legend-dot danger"></span> Critical</span>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="card-header">
+              <div>
+                <h3 class="card-title">Driver Status</h3>
+                <p class="card-description">Latest available driver information</p>
+              </div>
+              <button class="btn btn-ghost btn-sm" data-go-page="network">View All</button>
+            </div>
+            <div class="drivers-list driver-list" id="driversList">
+              <div class="empty-state">
+                <div class="spinner"></div>
+                <p>Loading drivers...</p>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <div class="two-column-grid">
+          <article class="card">
+            <div class="card-header">
+              <div>
+                <h3 class="card-title">Priority Decision Queue</h3>
+                <p class="card-description">Shipments requiring operator attention</p>
+              </div>
+              <button class="btn btn-secondary btn-sm" data-go-page="decision">Open Decision Center</button>
+            </div>
+            <div class="decision-queue" id="decisionQueue">
+              <div class="empty-state">Loading decision queue...</div>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="card-header">
+              <div>
+                <h3 class="card-title">Network Health</h3>
+                <p class="card-description">Current operational overview</p>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="metric-row">
+                <span class="metric-label">Active shipments</span>
+                <span class="metric-value" id="networkActiveOrders">0</span>
+              </div>
+              <div class="progress"><div class="progress-bar" id="activeOrdersProgress" style="width:0%"></div></div>
+
+              <div class="metric-row mt-4">
+                <span class="metric-label">Disruptions detected</span>
+                <span class="metric-value" id="networkDisruptions">0</span>
+              </div>
+              <div class="progress"><div class="progress-bar warning" id="disruptionProgress" style="width:0%"></div></div>
+
+              <div class="metric-row mt-4">
+                <span class="metric-label">Critical-risk shipments</span>
+                <span class="metric-value" id="networkCriticalOrders">0</span>
+              </div>
+              <div class="progress"><div class="progress-bar danger" id="criticalProgress" style="width:0%"></div></div>
+
+              <div class="metric-row mt-4">
+                <span class="metric-label">Last data refresh</span>
+                <span class="metric-value" id="lastRefreshTime">Not yet refreshed</span>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- NETWORK OVERVIEW -->
+      <section class="page" id="page-network" data-page-section="network">
+        <div class="page-header">
+          <div>
+            <h2 class="page-title">Network Overview</h2>
+            <p class="page-subtitle">Inspect drivers, shipments and disruption events.</p>
+          </div>
+          <button class="btn btn-primary" id="refreshNetworkBtn">↻ Refresh Network</button>
+        </div>
+
+        <div class="stats-grid">
+          <article class="stat-card">
+            <div class="stat-label">Drivers Available</div>
+            <div class="stat-value" id="networkDriverCount">0</div>
+          </article>
+          <article class="stat-card">
+            <div class="stat-label">Total Shipments</div>
+            <div class="stat-value" id="networkOrderCount">0</div>
+          </article>
+          <article class="stat-card">
+            <div class="stat-label">Open Disruptions</div>
+            <div class="stat-value" id="networkDisruptionCount">0</div>
+          </article>
+          <article class="stat-card">
+            <div class="stat-label">High/Critical Risk</div>
+            <div class="stat-value" id="networkRiskCount">0</div>
+          </article>
+        </div>
+
+        <article class="card section">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title">Driver Network</h3>
+              <p class="card-description">Driver identity, vehicle and location status</p>
+            </div>
+            <input class="form-control table-search" id="driverSearch" type="search" placeholder="Search drivers...">
+          </div>
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Driver</th>
+                  <th>Vehicle</th>
+                  <th>Status</th>
+                  <th>Speed</th>
+                  <th>GPS Location</th>
+                  <th>Updated</th>
+                </tr>
+              </thead>
+              <tbody id="networkDriversTable">
+                <tr><td colspan="6">Loading driver data...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
+
+        <article class="card section">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title">Shipment Network</h3>
+              <p class="card-description">Current status and risk across the shipment network</p>
+            </div>
+            <input class="form-control table-search" id="orderSearch" type="search" placeholder="Search shipments...">
+          </div>
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Shipment</th>
+                  <th>Destination</th>
+                  <th>Status</th>
+                  <th>Risk</th>
+                  <th>ETA</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="networkOrdersTable">
+                <tr><td colspan="6">Loading shipment data...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
+
+        <article class="card section">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title">Disruption Events</h3>
+              <p class="card-description">Events currently known to the operator console</p>
+            </div>
+          </div>
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Event</th>
+                  <th>Type</th>
+                  <th>Severity</th>
+                  <th>Location</th>
+                  <th>Details</th>
+                  <th>Time</th>
+                </tr>
+              </thead>
+              <tbody id="networkEventsTable">
+                <tr><td colspan="6">No events loaded.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+
+      <!-- IMPACT ANALYSIS -->
+      <section class="page" id="page-impact" data-page-section="impact">
+        <div class="page-header">
+          <div>
+            <h2 class="page-title">Impact Analysis</h2>
+            <p class="page-subtitle">Identify disruption consequences and affected shipments.</p>
+          </div>
+          <button class="btn btn-secondary" id="refreshImpactBtn">↻ Refresh Impact</button>
+        </div>
+
+        <div class="stats-grid">
+          <article class="stat-card">
+            <div class="stat-label">Affected Shipments</div>
+            <div class="stat-value" id="impactAffectedCount">0</div>
+          </article>
+          <article class="stat-card">
+            <div class="stat-label">Critical Shipments</div>
+            <div class="stat-value" id="impactCriticalCount">0</div>
+          </article>
+          <article class="stat-card">
+            <div class="stat-label">Disruption Events</div>
+            <div class="stat-value" id="impactDisruptionCount">0</div>
+          </article>
+          <article class="stat-card">
+            <div class="stat-label">Estimated Delay</div>
+            <div class="stat-value" id="impactEstimatedDelay">0 min</div>
+          </article>
+        </div>
+
+        <article class="card section">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title">Disruption Impact Chain</h3>
+              <p class="card-description">A conceptual view of how a disruption can affect operations</p>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="impact-chain">
+              <div class="impact-step active">
+                <div class="impact-step-icon">⚠</div>
+                <div class="impact-step-title">Disruption</div>
+                <div class="impact-step-description">Event detected</div>
+              </div>
+              <div class="impact-arrow">→</div>
+              <div class="impact-step active">
+                <div class="impact-step-icon">↗</div>
+                <div class="impact-step-title">Route Impact</div>
+                <div class="impact-step-description">Potential route change</div>
+              </div>
+              <div class="impact-arrow">→</div>
+              <div class="impact-step critical">
+                <div class="impact-step-icon">⏱</div>
+                <div class="impact-step-title">Delay Risk</div>
+                <div class="impact-step-description">ETA may change</div>
+              </div>
+              <div class="impact-arrow">→</div>
+              <div class="impact-step">
+                <div class="impact-step-icon">📦</div>
+                <div class="impact-step-title">Shipment</div>
+                <div class="impact-step-description">Customer impact</div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title">Affected Shipments</h3>
+              <p class="card-description">Prioritize shipments based on available risk information</p>
+            </div>
+            <select class="form-control" id="impactRiskFilter" aria-label="Filter affected shipments">
+              <option value="all">All risk levels</option>
+              <option value="critical">Critical only</option>
+              <option value="high">High only</option>
+              <option value="medium">Medium only</option>
+              <option value="low">Low only</option>
+            </select>
+          </div>
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Shipment</th>
+                  <th>Destination</th>
+                  <th>Risk</th>
+                  <th>Delay Estimate</th>
+                  <th>Disruption</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="affectedShipmentsTable">
+                <tr><td colspan="6">No affected shipments identified.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+
+      <!-- DECISION CENTER -->
+      <section class="page" id="page-decision" data-page-section="decision">
+        <div class="page-header">
+          <div>
+            <h2 class="page-title">Decision Center</h2>
+            <p class="page-subtitle">Review risk and submit operator decisions for individual shipments.</p>
+          </div>
+          <div class="decision-timer">
+            <span>Decision clock</span>
+            <span class="timer-value" id="decisionTimer">08:42</span>
+          </div>
+        </div>
+
+        <div class="two-column-grid">
+          <article class="card">
+            <div class="card-header">
+              <div>
+                <h3 class="card-title">Select Shipment</h3>
+                <p class="card-description">Choose a shipment requiring an operational decision.</p>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="form-group">
+                <label for="decisionOrderSelect">Shipment</label>
+                <select id="decisionOrderSelect" class="form-control">
+                  <option value="">Select a shipment...</option>
+                </select>
+              </div>
+
+              <div id="selectedOrderDetails" class="selected-order-details mt-4">
+                <div class="empty-state">
+                  <div class="empty-state-icon">📦</div>
+                  <p>Select a shipment to view its details.</p>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="card-header">
+              <div>
+                <h3 class="card-title">Decision Recommendation</h3>
+                <p class="card-description">Choose an operational action and provide a reason.</p>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="scenario-grid decision-scenario-grid">
+                <button class="scenario-card" type="button" data-scenario="current">
+                  <div class="scenario-icon">➡</div>
+                  <h4 class="scenario-title">Continue</h4>
+                  <p class="scenario-description">Continue with the current operational plan.</p>
+                </button>
+
+                <button class="scenario-card" type="button" data-scenario="alternate">
+                  <div class="scenario-icon">↗</div>
+                  <h4 class="scenario-title">Reroute</h4>
+                  <p class="scenario-description">Consider an alternative route.</p>
+                </button>
+
+                <button class="scenario-card" type="button" data-scenario="hold">
+                  <div class="scenario-icon">Ⅱ</div>
+                  <h4 class="scenario-title">Hold</h4>
+                  <p class="scenario-description">Temporarily hold the shipment.</p>
+                </button>
+
+                <button class="scenario-card" type="button" data-scenario="reassign">
+                  <div class="scenario-icon">⇄</div>
+                  <h4 class="scenario-title">Reassign</h4>
+                  <p class="scenario-description">Consider reassignment to another driver.</p>
+                </button>
+              </div>
+
+              <div class="form-group mt-4">
+                <label for="decisionReason">Decision Reason</label>
+                <textarea
+                  id="decisionReason"
+                  class="form-control"
+                  placeholder="Explain why this action is appropriate..."
+                ></textarea>
+              </div>
+
+              <div class="alert alert-info mt-3" id="scenarioResult">
+                Select a scenario to review the suggested action.
+              </div>
+
+              <div class="form-actions">
+                <button class="btn btn-secondary" id="resetDecisionBtn">Reset</button>
+                <button class="btn btn-primary" id="acceptScenarioBtn">Submit Decision</button>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <article class="card section">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title">Pending Decision Queue</h3>
+              <p class="card-description">High-priority shipments that may require review</p>
+            </div>
+          </div>
+          <div class="decision-queue" id="fullDecisionQueue">
+            <div class="empty-state">No decisions loaded.</div>
+          </div>
+        </article>
+      </section>
+
+      <!-- WHAT-IF PLANNING -->
+      <section class="page" id="page-whatif" data-page-section="whatif">
+        <div class="page-header">
+          <div>
+            <h2 class="page-title">What-if Planning</h2>
+            <p class="page-subtitle">Compare hypothetical operational responses before deciding.</p>
+          </div>
+        </div>
+
+        <div class="two-column-grid">
+          <article class="card">
+            <div class="card-header">
+              <h3 class="card-title">Scenario Configuration</h3>
+            </div>
+            <div class="card-body">
+              <div class="form-group">
+                <label for="whatIfOrderSelect">Shipment</label>
+                <select id="whatIfOrderSelect" class="form-control">
+                  <option value="">All shipments</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="whatIfDisruption">Disruption Type</label>
+                <select id="whatIfDisruption" class="form-control">
+                  <option value="traffic">Heavy traffic</option>
+                  <option value="road_closure">Road closure</option>
+                  <option value="weather">Severe weather</option>
+                  <option value="vehicle">Vehicle breakdown</option>
+                  <option value="delay">Unexpected delay</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="whatIfDelay">Estimated Additional Delay (minutes)</label>
+                <input id="whatIfDelay" type="number" class="form-control" min="0" max="1440" value="30">
+              </div>
+
+              <div class="form-group">
+                <label for="whatIfSeverity">Disruption Severity</label>
+                <select id="whatIfSeverity" class="form-control">
+                  <option value="low">Low</option>
+                  <option value="medium" selected>Medium</option>
+                  <option value="high">High</option>
+                  <option value="critical">Critical</option>
+                </select>
+              </div>
+
+              <button class="btn btn-primary btn-block mt-3" id="runWhatIfBtn">
+                Run What-if Analysis
+              </button>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="card-header">
+              <h3 class="card-title">Scenario Comparison</h3>
+            </div>
+            <div class="card-body">
+              <div id="whatIfScenarioResult" class="empty-state">
+                <div class="empty-state-icon">⇄</div>
+                <p>Configure a hypothetical disruption and run the analysis.</p>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <article class="card section">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title">Scenario Results</h3>
+              <p class="card-description">Illustrative estimates based on the configured inputs</p>
+            </div>
+          </div>
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Strategy</th>
+                  <th>Estimated Delay</th>
+                  <th>Risk</th>
+                  <th>Operational Notes</th>
+                </tr>
+              </thead>
+              <tbody id="whatIfResultsTable">
+                <tr><td colspan="4">Run an analysis to see comparison results.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+
+      <!-- TRIGGER RULES -->
+      <section class="page" id="page-triggers" data-page-section="triggers">
+        <div class="page-header">
+          <div>
+            <h2 class="page-title">Trigger Rules</h2>
+            <p class="page-subtitle">Configure local operator-side alert and review preferences.</p>
+          </div>
+          <button class="btn btn-secondary" id="resetTriggersBtn">Reset Defaults</button>
+        </div>
+
+        <article class="card">
+          <div class="card-header">
+            <div>
+              <h3 class="card-title">Automated Monitoring Rules</h3>
+              <p class="card-description">
+                These toggles control frontend monitoring preferences; they do not create backend automation rules.
+              </p>
+            </div>
+          </div>
+
+          <div class="rule-list">
+            <div class="rule-item">
+              <div>
+                <div class="rule-title">Critical Risk Alert</div>
+                <div class="rule-description">Create a local alert when critical risk is detected.</div>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" data-trigger="criticalRisk" checked>
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+
+            <div class="rule-item">
+              <div>
+                <div class="rule-title">High Risk Review</div>
+                <div class="rule-description">Highlight high-risk shipments in the decision queue.</div>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" data-trigger="highRisk" checked>
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+
+            <div class="rule-item">
+              <div>
+                <div class="rule-title">Driver GPS Updates</div>
+                <div class="rule-description">Process driver location events received from Socket.IO.</div>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" data-trigger="driverGPS" checked>
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+
+            <div class="rule-item">
+              <div>
+                <div class="rule-title">Disruption Alerts</div>
+                <div class="rule-description">Create alerts for new disruption events.</div>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" data-trigger="disruptionAlerts" checked>
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+
+            <div class="rule-item">
+              <div>
+                <div class="rule-title">Browser Notifications</div>
+                <div class="rule-description">Allow browser notifications when permission is granted.</div>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" data-trigger="browserNotifications">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <!-- DECISION LOG -->
+      <section class="page" id="page-decisions" data-page-section="decisions">
+        <div class="page-header">
+          <div>
+            <h2 class="page-title">Decision Log</h2>
+            <p class="page-subtitle">Review operator decisions recorded during this session.</p>
+          </div>
+          <button class="btn btn-secondary" id="exportDecisionsBtn">Export CSV</button>
+        </div>
+
+        <article class="card">
+          <div class="card-header">
+            <h3 class="card-title">Recorded Decisions</h3>
+            <input id="decisionLogSearch" class="form-control table-search" type="search" placeholder="Search decisions...">
+          </div>
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Time</th>
+                  <th>Shipment</th>
+                  <th>Decision</th>
+                  <th>Reason</th>
+                  <th>Operator</th>
+                  <th>Source</th>
+                </tr>
+              </thead>
+              <tbody id="decisionLogTable">
+                <tr><td colspan="6">No decisions recorded in this session.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+
+      <!-- SHIFT HANDOVER -->
+      <section class="page" id="page-handover" data-page-section="handover">
+        <div class="page-header">
+          <div>
+            <h2 class="page-title">Shift Handover</h2>
+            <p class="page-subtitle">Prepare a summary for the next operations shift.</p>
+          </div>
+          <button class="btn btn-primary" id="createHandoverBtn">Create Handover Report</button>
+        </div>
+
+        <div class="two-column-grid">
+          <article class="card">
+            <div class="card-header">
+              <h3 class="card-title">Current Shift Summary</h3>
+            </div>
+            <div class="card-body">
+              <div class="metric-row">
+                <span class="metric-label">Total shipments</span>
+                <span class="metric-value" id="handoverOrderCount">0</span>
+              </div>
+              <div class="metric-row">
+                <span class="metric-label">At-risk shipments</span>
+                <span class="metric-value" id="handoverRiskCount">0</span>
+              </div>
+              <div class="metric-row">
+                <span class="metric-label">Known disruptions</span>
+                <span class="metric-value" id="handoverDisruptionCount">0</span>
+              </div>
+              <div class="metric-row">
+                <span class="metric-label">Session decisions</span>
+                <span class="metric-value" id="handoverDecisionCount">0</span>
+              </div>
+
+              <div class="form-group mt-4">
+                <label for="handoverNotes">Handover Notes</label>
+                <textarea
+                  id="handoverNotes"
+                  class="form-control"
+                  placeholder="Enter unresolved issues, important shipments and next actions..."
+                ></textarea>
+              </div>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="card-header">
+              <h3 class="card-title">Handover Report</h3>
+            </div>
+            <div class="card-body">
+              <div id="handoverReport" class="handover-panel">
+                <div class="empty-state">
+                  <div class="empty-state-icon">⇥</div>
+                  <p>Create a report to generate a summary of the currently loaded information.</p>
+                </div>
+              </div>
+              <div class="form-actions">
+                <button class="btn btn-secondary" id="downloadHandoverBtn" disabled>
+                  Download Report
+                </button>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- SIMULATION LAB -->
+      <section class="page" id="page-simulation" data-page-section="simulation">
+        <div class="page-header">
+          <div>
+            <h2 class="page-title">Simulation Lab</h2>
+            <p class="page-subtitle">Test hypothetical delays and inspect their potential impact.</p>
+          </div>
+        </div>
+
+        <div class="two-column-grid">
+          <article class="card">
+            <div class="card-header">
+              <h3 class="card-title">Simulation Inputs</h3>
+            </div>
+            <div class="card-body">
+              <div class="form-group">
+                <label for="simulationDelay">Additional Delay (minutes)</label>
+                <input type="number" id="simulationDelay" class="form-control" min="0" max="1440" value="30">
+              </div>
+
+              <div class="form-group">
+                <label for="simulationRisk">Risk Increase</label>
+                <select id="simulationRisk" class="form-control">
+                  <option value="low">Low</option>
+                  <option value="medium" selected>Medium</option>
+                  <option value="high">High</option>
+                  <option value="critical">Critical</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="simulationScope">Simulation Scope</label>
+                <select id="simulationScope" class="form-control">
+                  <option value="all">All shipments</option>
+                  <option value="active">Active shipments only</option>
+                  <option value="atrisk">At-risk shipments only</option>
+                </select>
+              </div>
+
+              <button class="btn btn-primary btn-block mt-3" id="runSimulationBtn">
+                ▶ Run Simulation
+              </button>
+              <button class="btn btn-secondary btn-block mt-2" id="resetSimulationBtn">
+                Reset Simulation
+              </button>
+            </div>
+          </article>
+
+          <article class="card">
+            <div class="card-header">
+              <h3 class="card-title">Simulation Summary</h3>
+            </div>
+            <div class="card-body">
+              <div class="stats-grid simulation-stats">
+                <div class="stat-card">
+                  <div class="stat-label">Affected</div>
+                  <div class="stat-value" id="simulationAffected">0</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-label">High/Critical</div>
+                  <div class="stat-value" id="simulationHighRisk">0</div>
+                </div>
+              </div>
+              <div id="simulationSummary" class="alert alert-info">
+                Run a simulation to calculate illustrative impacts.
+              </div>
+              <p class="form-help">
+                Simulation results are estimates. They do not update backend shipments or change real routes.
+              </p>
+            </div>
+          </article>
+        </div>
+
+        <article class="card section">
+          <div class="card-header">
+            <h3 class="card-title">Simulated Shipment Impact</h3>
+          </div>
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Shipment</th>
+                  <th>Current Risk</th>
+                  <th>Simulated Risk</th>
+                  <th>Additional Delay</th>
+                  <th>Recommendation</th>
+                </tr>
+              </thead>
+              <tbody id="simulationResultsTable">
+                <tr><td colspan="5">No simulation has been run.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+
+      <!-- ALERTS -->
+      <section class="page" id="page-alerts" data-page-section="alerts">
+        <div class="page-header">
+          <div>
+            <h2 class="page-title">Alerts &amp; Notifications</h2>
+            <p class="page-subtitle">Review alerts generated by this operator session.</p>
+          </div>
+          <div class="flex gap-2 flex-wrap">
+            <button class="btn btn-secondary" id="markAllReadBtn">Mark All Read</button>
+            <button class="btn btn-danger" id="clearAlertsBtn">Clear Alerts</button>
+          </div>
+        </div>
+
+        <div class="stats-grid">
+          <article class="stat-card">
+            <div class="stat-label">Total Alerts</div>
+            <div class="stat-value" id="totalAlerts">0</div>
+          </article>
+          <article class="stat-card">
+            <div class="stat-label">Unread Alerts</div>
+            <div class="stat-value" id="unreadAlerts">0</div>
+          </article>
+          <article class="stat-card">
+            <div class="stat-label">Critical Alerts</div>
+            <div class="stat-value" id="criticalAlerts">0</div>
+          </article>
+          <article class="stat-card">
+            <div class="stat-label">Latest Activity</div>
+            <div class="stat-value compact-value" id="latestAlertTime">—</div>
+          </article>
+        </div>
+
+        <div id="alertsList" class="alerts-list">
+          <div class="empty-state">
+            <div class="empty-state-icon">♧</div>
+            <h3 class="empty-state-title">No alerts yet</h3>
+            <p class="empty-state-description">New alerts will appear here when events are received.</p>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<!-- PROFILE MODAL -->
+<div class="modal-overlay" id="profileModal" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="profileModalTitle">
+    <div class="modal-header">
+      <h2 class="modal-title" id="profileModalTitle">Operator Profile</h2>
+      <button class="icon-button" id="closeProfileBtn" aria-label="Close profile">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label for="operatorNameInput">Operator Name</label>
+        <input type="text" id="operatorNameInput" class="form-control" value="Control Operator" maxlength="80">
+      </div>
+      <div class="form-group mt-3">
+        <label for="operatorShiftInput">Shift</label>
+        <select id="operatorShiftInput" class="form-control">
+          <option value="Morning">Morning</option>
+          <option value="Evening">Evening</option>
+          <option value="Night">Night</option>
+        </select>
+      </div>
+      <p class="form-help mt-3">
+        The operator name is sent to the backend when supported. The profile is not an authentication system.
+      </p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" id="cancelProfileBtn">Cancel</button>
+      <button class="btn btn-primary" id="saveProfileBtn">Save Profile</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOASTS -->
+<div class="toast-container" id="toastContainer" aria-live="polite" aria-atomic="false"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+  integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+  crossorigin=""></script>
+<script src="http://localhost:3000/socket.io/socket.io.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
