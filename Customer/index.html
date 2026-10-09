@@ -1,0 +1,1496 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>LOGIX AI | Customer Portal</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<!-- =========================================================
+     SIDEBAR
+========================================================= -->
+
+<aside class="sidebar">
+
+    <div class="brand">
+        <div class="brand-logo">L</div>
+
+        <div>
+            <h2>LOGIX AI</h2>
+            <p>Customer Portal</p>
+        </div>
+    </div>
+
+
+    <nav class="navigation">
+
+        <button class="nav-btn active" data-page="dashboardPage">
+            <span>🏠</span>
+            Dashboard
+        </button>
+
+        <button class="nav-btn" data-page="ordersPage">
+            <span>📦</span>
+            My Orders
+        </button>
+
+        <button class="nav-btn" data-page="trackingPage">
+            <span>🚚</span>
+            Track Delivery
+        </button>
+
+        <button class="nav-btn" data-page="alertsPage">
+            <span>⚠️</span>
+            Alerts
+            <b class="nav-alert-count">2</b>
+        </button>
+
+        <button class="nav-btn" data-page="historyPage">
+            <span>📅</span>
+            Delivery History
+        </button>
+
+        <button class="nav-btn" data-page="supportPage">
+            <span>💬</span>
+            Support
+        </button>
+
+    </nav>
+
+
+    <div class="sidebar-bottom">
+
+        <div class="connection-status">
+            <span class="online-dot"></span>
+
+            <div>
+                <strong>Local System</strong>
+                <small>Demo Mode • No Server</small>
+            </div>
+        </div>
+
+
+        <div class="customer-profile">
+
+            <div class="avatar">
+                AK
+            </div>
+
+            <div class="profile-info">
+                <strong>Arun Kumar</strong>
+                <small>ABC Industries</small>
+            </div>
+
+            <button id="profileButton">
+                ⋮
+            </button>
+
+        </div>
+
+    </div>
+
+</aside>
+
+
+<!-- =========================================================
+     MAIN
+========================================================= -->
+
+<main class="main-content">
+
+
+<!-- =========================================================
+     DASHBOARD
+========================================================= -->
+
+<section class="page active-page" id="dashboardPage">
+
+    <header class="topbar">
+
+        <div>
+            <div class="breadcrumb">
+                Customer / Dashboard
+            </div>
+
+            <h1>Good morning, Arun 👋</h1>
+
+            <p>
+                Monitor your deliveries and stay ahead of disruptions.
+            </p>
+        </div>
+
+
+        <div class="top-actions">
+
+            <button class="notification-btn"
+                    id="notificationButton">
+
+                🔔
+
+                <span id="notificationCount"
+                      class="notification-count">
+                    2
+                </span>
+
+            </button>
+
+
+            <div class="system-pill">
+                <span></span>
+                System Online
+            </div>
+
+        </div>
+
+    </header>
+
+
+    <!-- SUMMARY -->
+
+    <div class="summary-grid">
+
+        <div class="summary-card blue">
+
+            <div class="summary-icon">📦</div>
+
+            <div>
+                <span>Active Orders</span>
+                <strong>3</strong>
+                <small>+1 this week</small>
+            </div>
+
+        </div>
+
+
+        <div class="summary-card purple">
+
+            <div class="summary-icon">🚚</div>
+
+            <div>
+                <span>In Transit</span>
+                <strong>2</strong>
+                <small>Live tracking</small>
+            </div>
+
+        </div>
+
+
+        <div class="summary-card orange">
+
+            <div class="summary-icon">⚠️</div>
+
+            <div>
+                <span>At Risk</span>
+                <strong>1</strong>
+                <small>Requires attention</small>
+            </div>
+
+        </div>
+
+
+        <div class="summary-card green">
+
+            <div class="summary-icon">✓</div>
+
+            <div>
+                <span>Delivered</span>
+                <strong>12</strong>
+                <small>98% success rate</small>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- CUSTOMER PROFILE CARD -->
+
+    <div class="customer-card">
+
+        <div class="customer-main">
+
+            <div class="large-avatar">
+                AK
+            </div>
+
+            <div>
+
+                <span class="eyebrow">
+                    CUSTOMER ACCOUNT
+                </span>
+
+                <h2>Arun Kumar</h2>
+
+                <p>ABC Industries</p>
+
+            </div>
+
+        </div>
+
+
+        <div class="customer-details">
+
+            <div>
+                <span>Email</span>
+                <strong>arun@abcindustries.com</strong>
+            </div>
+
+            <div>
+                <span>Phone</span>
+                <strong>+91 98765 43210</strong>
+            </div>
+
+            <div>
+                <span>Default Destination</span>
+                <strong>Chennai, Tamil Nadu</strong>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- CURRENT DELIVERY -->
+
+    <div class="section-heading">
+
+        <div>
+            <h2>Current Delivery</h2>
+            <p>Your most important active shipment</p>
+        </div>
+
+        <span class="risk-badge">
+            🟠 At Risk
+        </span>
+
+    </div>
+
+
+    <div class="delivery-main-card">
+
+        <div class="delivery-header">
+
+            <div>
+
+                <span class="order-label">
+                    ORDER #ORD-1024
+                </span>
+
+                <h2>Electronics Shipment</h2>
+
+                <div class="route-text">
+                    <span>📍 Coimbatore</span>
+                    <b>→</b>
+                    <span>📍 Chennai</span>
+                </div>
+
+            </div>
+
+
+            <div class="live-tag">
+                ● LIVE
+            </div>
+
+        </div>
+
+
+        <div class="delivery-metrics">
+
+            <div>
+                <span>Status</span>
+                <strong>🚚 In Transit</strong>
+            </div>
+
+            <div>
+                <span>Original ETA</span>
+                <strong>10:42 AM</strong>
+            </div>
+
+            <div>
+                <span>Revised ETA</span>
+                <strong class="danger">
+                    11:05 AM
+                </strong>
+            </div>
+
+            <div>
+                <span>Deadline</span>
+                <strong>11:30 AM</strong>
+            </div>
+
+        </div>
+
+
+        <!-- DEADLINE RISK -->
+
+        <div class="deadline-risk-grid">
+
+            <div class="deadline-box">
+
+                <span>⏱ TIME REMAINING</span>
+
+                <strong id="timeRemaining">
+                    25 min
+                </strong>
+
+                <small>
+                    Until delivery deadline
+                </small>
+
+            </div>
+
+
+            <div class="deadline-box">
+
+                <span>📅 DEADLINE</span>
+
+                <strong>
+                    11:30 AM
+                </strong>
+
+                <small>
+                    Today
+                </small>
+
+            </div>
+
+
+            <div class="risk-indicator at-risk"
+                 id="riskIndicator">
+
+                <div class="risk-icon"
+                     id="riskIcon">
+                    🟠
+                </div>
+
+                <div>
+
+                    <strong id="riskStatus">
+                        AT RISK
+                    </strong>
+
+                    <small id="riskMessage">
+                        Delivery is approaching the deadline.
+                    </small>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- DISRUPTION -->
+
+        <div class="disruption-panel">
+
+            <div class="disruption-icon">
+                ⚠️
+            </div>
+
+            <div class="disruption-content">
+
+                <div class="disruption-title">
+                    <h3>Route Disruption Detected</h3>
+
+                    <span>
+                        Detected 18 min ago
+                    </span>
+                </div>
+
+                <p>
+                    Traffic congestion on the original route
+                    has caused a delay. The logistics system
+                    selected an alternate route to reduce
+                    the impact.
+                </p>
+
+                <div class="impact-row">
+
+                    <span>
+                        Original ETA:
+                        <b>10:42 AM</b>
+                    </span>
+
+                    <span>
+                        Revised ETA:
+                        <b class="danger">11:05 AM</b>
+                    </span>
+
+                    <span>
+                        Delay:
+                        <b>+23 min</b>
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="delivery-actions">
+
+            <button class="primary-btn"
+                    data-go-page="trackingPage">
+                📍 Track Delivery
+            </button>
+
+            <button class="secondary-btn"
+                    data-go-page="ordersPage">
+                View Order Details
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- QUICK INFORMATION -->
+
+    <div class="section-heading compact">
+
+        <div>
+            <h2>Delivery Overview</h2>
+            <p>Current logistics status</p>
+        </div>
+
+    </div>
+
+
+    <div class="overview-grid">
+
+        <div class="overview-card">
+
+            <span>🚚</span>
+
+            <div>
+                <small>Current Location</small>
+                <strong>Salem</strong>
+            </div>
+
+        </div>
+
+
+        <div class="overview-card">
+
+            <span>🛣️</span>
+
+            <div>
+                <small>Route Status</small>
+                <strong>Alternate Route</strong>
+            </div>
+
+        </div>
+
+
+        <div class="overview-card">
+
+            <span>👨‍✈️</span>
+
+            <div>
+                <small>Driver</small>
+                <strong>Raj Kumar</strong>
+            </div>
+
+        </div>
+
+
+        <div class="overview-card">
+
+            <span>🚛</span>
+
+            <div>
+                <small>Vehicle</small>
+                <strong>TN 38 AB 1234</strong>
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =========================================================
+     ORDERS
+========================================================= -->
+
+<section class="page" id="ordersPage">
+
+    <div class="page-title">
+
+        <div class="breadcrumb">
+            Customer / Orders
+        </div>
+
+        <h1>📦 My Orders</h1>
+
+        <p>
+            View and monitor all your shipments.
+        </p>
+
+    </div>
+
+
+    <div class="filter-bar">
+
+        <input
+            type="text"
+            id="orderSearch"
+            placeholder="Search order, product or destination...">
+
+
+        <select id="statusFilter">
+
+            <option value="all">
+                All Status
+            </option>
+
+            <option value="transit">
+                In Transit
+            </option>
+
+            <option value="preparing">
+                Preparing
+            </option>
+
+            <option value="delivered">
+                Delivered
+            </option>
+
+        </select>
+
+    </div>
+
+
+    <div class="table-card">
+
+        <table id="ordersTable">
+
+            <thead>
+
+                <tr>
+
+                    <th>Order</th>
+                    <th>Product</th>
+                    <th>Destination</th>
+                    <th>Status</th>
+                    <th>ETA</th>
+                    <th>Priority</th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                <tr class="order-row"
+                    data-order="ORD-1024"
+                    data-status="transit">
+
+                    <td>
+                        <strong>#ORD-1024</strong>
+                        <small>Today • 8:00 AM</small>
+                    </td>
+
+                    <td>Electronics</td>
+
+                    <td>Chennai</td>
+
+                    <td>
+                        <span class="status-chip transit">
+                            In Transit
+                        </span>
+                    </td>
+
+                    <td>11:05 AM</td>
+
+                    <td>
+                        <span class="priority high">
+                            High
+                        </span>
+                    </td>
+
+                </tr>
+
+
+                <tr class="order-row"
+                    data-order="ORD-1025"
+                    data-status="preparing">
+
+                    <td>
+                        <strong>#ORD-1025</strong>
+                        <small>Today • 10:15 AM</small>
+                    </td>
+
+                    <td>Components</td>
+
+                    <td>Salem</td>
+
+                    <td>
+                        <span class="status-chip preparing">
+                            Preparing
+                        </span>
+                    </td>
+
+                    <td>2:30 PM</td>
+
+                    <td>
+                        <span class="priority normal">
+                            Normal
+                        </span>
+                    </td>
+
+                </tr>
+
+
+                <tr class="order-row"
+                    data-order="ORD-1026"
+                    data-status="delivered">
+
+                    <td>
+                        <strong>#ORD-1026</strong>
+                        <small>Yesterday • 6:40 PM</small>
+                    </td>
+
+                    <td>Equipment</td>
+
+                    <td>Bengaluru</td>
+
+                    <td>
+                        <span class="status-chip delivered">
+                            Delivered
+                        </span>
+                    </td>
+
+                    <td>Completed</td>
+
+                    <td>
+                        <span class="priority normal">
+                            Normal
+                        </span>
+                    </td>
+
+                </tr>
+
+            </tbody>
+
+        </table>
+
+
+        <div class="empty-state"
+             id="emptyOrders">
+
+            No matching orders found.
+
+        </div>
+
+
+        <!-- ORDER DETAILS -->
+
+        <div class="order-details"
+             id="orderDetails">
+
+            <div class="details-top">
+
+                <div>
+
+                    <span>SELECTED ORDER</span>
+
+                    <h2 id="detailOrderId">
+                        #ORD-1024
+                    </h2>
+
+                </div>
+
+                <button id="closeOrderDetails">
+                    ✕
+                </button>
+
+            </div>
+
+
+            <div class="detail-grid">
+
+                <div>
+                    <span>Product</span>
+                    <strong id="detailProduct">Electronics</strong>
+                </div>
+
+                <div>
+                    <span>Destination</span>
+                    <strong id="detailDestination">Chennai</strong>
+                </div>
+
+                <div>
+                    <span>Status</span>
+                    <strong id="detailStatus">In Transit</strong>
+                </div>
+
+                <div>
+                    <span>ETA</span>
+                    <strong id="detailEta">11:05 AM</strong>
+                </div>
+
+                <div>
+                    <span>Priority</span>
+                    <strong id="detailPriority">High</strong>
+                </div>
+
+                <div>
+                    <span>Deadline</span>
+                    <strong>11:30 AM</strong>
+                </div>
+
+            </div>
+
+
+            <button class="primary-btn"
+                    id="trackSelectedOrder">
+                📍 Track This Order
+            </button>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =========================================================
+     TRACKING
+========================================================= -->
+
+<section class="page" id="trackingPage">
+
+    <div class="page-title">
+
+        <div class="breadcrumb">
+            Customer / Tracking
+        </div>
+
+        <h1>🚚 Track Delivery</h1>
+
+        <p>
+            Live status and route information for your shipment.
+        </p>
+
+    </div>
+
+
+    <div class="tracking-grid">
+
+        <!-- MAP -->
+
+        <div class="map-card">
+
+            <div class="map-header">
+
+                <div>
+                    <span>ORDER #ORD-1024</span>
+                    <h2>Live Delivery Route</h2>
+                </div>
+
+                <span class="live-tag">
+                    ● LIVE
+                </span>
+
+            </div>
+
+
+            <div class="fake-map">
+
+                <div class="map-grid-lines"></div>
+
+                <div class="road road-a"></div>
+                <div class="road road-b"></div>
+                <div class="road road-c"></div>
+                <div class="road road-d"></div>
+
+                <div class="map-city start-city">
+                    <span>●</span>
+                    <label>Coimbatore</label>
+                </div>
+
+                <div class="map-route-line"></div>
+
+                <div class="map-truck">
+                    🚚
+                </div>
+
+                <div class="map-city current-city">
+                    <span>●</span>
+                    <label>Salem</label>
+                </div>
+
+                <div class="map-city end-city">
+                    <span>●</span>
+                    <label>Chennai</label>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- STATUS -->
+
+        <div class="tracking-status-card">
+
+            <h2>Delivery Status</h2>
+
+
+            <div class="current-status-box">
+
+                <div class="status-large-icon">
+                    🚚
+                </div>
+
+                <div>
+
+                    <strong>In Transit</strong>
+
+                    <p>
+                        Shipment is moving toward Chennai.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="tracking-info">
+
+                <div>
+                    <span>Current Location</span>
+                    <strong>Salem</strong>
+                </div>
+
+                <div>
+                    <span>Estimated Arrival</span>
+                    <strong>11:05 AM</strong>
+                </div>
+
+                <div>
+                    <span>Deadline</span>
+                    <strong>11:30 AM</strong>
+                </div>
+
+                <div>
+                    <span>Driver</span>
+                    <strong>Raj Kumar</strong>
+                </div>
+
+                <div>
+                    <span>Vehicle</span>
+                    <strong>TN 38 AB 1234</strong>
+                </div>
+
+                <div>
+                    <span>Route</span>
+                    <strong>Alternate</strong>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- PROGRESS -->
+
+    <div class="section-heading">
+
+        <div>
+            <h2>Delivery Progress</h2>
+            <p>Shipment journey</p>
+        </div>
+
+        <span class="risk-badge">
+            🟠 At Risk
+        </span>
+
+    </div>
+
+
+    <div class="progress-card">
+
+        <div class="progress-step completed">
+
+            <div class="progress-circle">
+                ✓
+            </div>
+
+            <strong>Confirmed</strong>
+            <small>8:00 AM</small>
+
+        </div>
+
+
+        <div class="progress-line completed-line"></div>
+
+
+        <div class="progress-step completed">
+
+            <div class="progress-circle">
+                ✓
+            </div>
+
+            <strong>Dispatched</strong>
+            <small>9:00 AM</small>
+
+        </div>
+
+
+        <div class="progress-line active-line"></div>
+
+
+        <div class="progress-step current">
+
+            <div class="progress-circle">
+                🚚
+            </div>
+
+            <strong>In Transit</strong>
+            <small>Current</small>
+
+        </div>
+
+
+        <div class="progress-line"></div>
+
+
+        <div class="progress-step">
+
+            <div class="progress-circle">
+                4
+            </div>
+
+            <strong>Delivered</strong>
+            <small>11:05 AM</small>
+
+        </div>
+
+    </div>
+
+
+    <!-- DISRUPTION IMPACT -->
+
+    <div class="impact-card">
+
+        <div class="impact-header">
+
+            <div class="impact-icon">
+                ⚠️
+            </div>
+
+            <div>
+
+                <span>DISRUPTION IMPACT</span>
+
+                <h2>
+                    Traffic congestion detected
+                </h2>
+
+            </div>
+
+        </div>
+
+
+        <p>
+            The original route experienced significant traffic
+            congestion. The operator selected an alternate route
+            to minimize the delivery impact.
+        </p>
+
+
+        <div class="impact-metrics">
+
+            <div>
+                <span>Original ETA</span>
+                <strong>10:42 AM</strong>
+            </div>
+
+            <div>
+                <span>New ETA</span>
+                <strong class="danger">11:05 AM</strong>
+            </div>
+
+            <div>
+                <span>Delay</span>
+                <strong>+23 min</strong>
+            </div>
+
+            <div>
+                <span>Deadline</span>
+                <strong>11:30 AM</strong>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ROUTE DECISION -->
+
+    <div class="decision-card">
+
+        <div>
+            <span>LOGISTICS DECISION</span>
+
+            <h2>
+                Alternate route selected
+            </h2>
+
+            <p>
+                The current route is expected to keep the
+                delivery within the customer's deadline.
+            </p>
+        </div>
+
+        <div class="decision-result">
+            ✓
+            <span>
+                Deadline Currently Achievable
+            </span>
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =========================================================
+     ALERTS
+========================================================= -->
+
+<section class="page" id="alertsPage">
+
+    <div class="page-title">
+
+        <div class="breadcrumb">
+            Customer / Alerts
+        </div>
+
+        <h1>⚠️ Alerts & Notifications</h1>
+
+        <p>
+            Important updates about your shipments.
+        </p>
+
+    </div>
+
+
+    <div class="alerts-toolbar">
+
+        <div>
+            <strong id="alertSummary">
+                2 unread notifications
+            </strong>
+
+            <small>
+                Click a notification to mark it as read.
+            </small>
+        </div>
+
+        <button class="secondary-btn"
+                id="markAllRead">
+            ✓ Mark All as Read
+        </button>
+
+    </div>
+
+
+    <div class="notification-list">
+
+
+        <div class="notification-item unread">
+
+            <div class="notification-icon warning">
+                ⚠️
+            </div>
+
+            <div class="notification-body">
+
+                <div class="notification-title">
+
+                    <h3>Route Disruption</h3>
+
+                    <span>2 min ago</span>
+
+                </div>
+
+                <p>
+                    Order #ORD-1024 has been affected by
+                    traffic congestion.
+                </p>
+
+                <strong>
+                    Revised ETA: 11:05 AM
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <div class="notification-item unread">
+
+            <div class="notification-icon clock">
+                ⏰
+            </div>
+
+            <div class="notification-body">
+
+                <div class="notification-title">
+
+                    <h3>Delivery Deadline Warning</h3>
+
+                    <span>8 min ago</span>
+
+                </div>
+
+                <p>
+                    Order #ORD-1024 is approaching its
+                    delivery deadline.
+                </p>
+
+                <strong>
+                    Deadline: 11:30 AM
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <div class="notification-item success-item">
+
+            <div class="notification-icon success">
+                ✓
+            </div>
+
+            <div class="notification-body">
+
+                <div class="notification-title">
+
+                    <h3>Order Delivered</h3>
+
+                    <span>Yesterday</span>
+
+                </div>
+
+                <p>
+                    Order #ORD-1026 was successfully delivered.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="notification-item success-item">
+
+            <div class="notification-icon success">
+                ✓
+            </div>
+
+            <div class="notification-body">
+
+                <div class="notification-title">
+
+                    <h3>Order Confirmed</h3>
+
+                    <span>Yesterday</span>
+
+                </div>
+
+                <p>
+                    Order #ORD-1025 has been confirmed and
+                    is being prepared.
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =========================================================
+     HISTORY
+========================================================= -->
+
+<section class="page" id="historyPage">
+
+    <div class="page-title">
+
+        <div class="breadcrumb">
+            Customer / History
+        </div>
+
+        <h1>📅 Delivery History</h1>
+
+        <p>
+            Your completed shipment history.
+        </p>
+
+    </div>
+
+
+    <div class="history-summary">
+
+        <div>
+            <span>Total Deliveries</span>
+            <strong>12</strong>
+        </div>
+
+        <div>
+            <span>Successful</span>
+            <strong>12</strong>
+        </div>
+
+        <div>
+            <span>On-Time Rate</span>
+            <strong>98%</strong>
+        </div>
+
+    </div>
+
+
+    <div class="history-list">
+
+        <div class="history-item">
+
+            <div class="history-icon">
+                ✓
+            </div>
+
+            <div class="history-main">
+
+                <strong>#ORD-1026</strong>
+
+                <p>
+                    Equipment • Bengaluru
+                </p>
+
+            </div>
+
+            <div class="history-date">
+                Yesterday
+            </div>
+
+            <span class="status-chip delivered">
+                Delivered
+            </span>
+
+        </div>
+
+
+        <div class="history-item">
+
+            <div class="history-icon">
+                ✓
+            </div>
+
+            <div class="history-main">
+
+                <strong>#ORD-1021</strong>
+
+                <p>
+                    Components • Salem
+                </p>
+
+            </div>
+
+            <div class="history-date">
+                Sep 29
+            </div>
+
+            <span class="status-chip delivered">
+                Delivered
+            </span>
+
+        </div>
+
+
+        <div class="history-item">
+
+            <div class="history-icon">
+                ✓
+            </div>
+
+            <div class="history-main">
+
+                <strong>#ORD-1018</strong>
+
+                <p>
+                    Electronics • Chennai
+                </p>
+
+            </div>
+
+            <div class="history-date">
+                Sep 27
+            </div>
+
+            <span class="status-chip delivered">
+                Delivered
+            </span>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =========================================================
+     SUPPORT
+========================================================= -->
+
+<section class="page" id="supportPage">
+
+    <div class="page-title">
+
+        <div class="breadcrumb">
+            Customer / Support
+        </div>
+
+        <h1>💬 Customer Support</h1>
+
+        <p>
+            Get assistance with your shipment.
+        </p>
+
+    </div>
+
+
+    <div class="support-grid">
+
+        <div class="support-card">
+
+            <div class="support-card-icon">
+                📞
+            </div>
+
+            <h2>Call Support</h2>
+
+            <p>
+                Speak directly with the logistics support team.
+            </p>
+
+            <button class="primary-btn"
+                    id="callSupport">
+                Call Support
+            </button>
+
+        </div>
+
+
+        <div class="support-card">
+
+            <div class="support-card-icon">
+                ✉️
+            </div>
+
+            <h2>Email Support</h2>
+
+            <p>
+                Send your delivery issue to our support team.
+            </p>
+
+            <button class="secondary-btn"
+                    id="emailSupport">
+                Email Support
+            </button>
+
+        </div>
+
+
+        <div class="support-card">
+
+            <div class="support-card-icon">
+                📦
+            </div>
+
+            <h2>Order Assistance</h2>
+
+            <p>
+                Need help with a specific order?
+            </p>
+
+            <button class="secondary-btn"
+                    data-go-page="ordersPage">
+                View Orders
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <div class="support-banner">
+
+        <div>
+            <span>SUPPORT STATUS</span>
+
+            <h2>
+                Support team is available
+            </h2>
+
+            <p>
+                Average response time: under 5 minutes
+            </p>
+        </div>
+
+        <div class="support-online">
+            ● Online
+        </div>
+
+    </div>
+
+</section>
+
+
+</main>
+
+
+<!-- =========================================================
+     MODAL
+========================================================= -->
+
+<div class="modal-overlay"
+     id="modalOverlay">
+
+    <div class="modal">
+
+        <button class="modal-close"
+                id="modalClose">
+            ✕
+        </button>
+
+        <div id="modalContent"></div>
+
+    </div>
+
+</div>
+
+
+<script src="http://localhost:3000/socket.io/socket.io.js"></script>
+<script src="script.js"></script>
+
+</body>
+
+</html>
