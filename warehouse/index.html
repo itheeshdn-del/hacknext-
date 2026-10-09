@@ -1,0 +1,1172 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#101827">
+    <title>LOGIX AI | Warehouse Control Center</title>
+
+    <style>
+        :root {
+            --bg: #0b1120;
+            --panel: #131d30;
+            --panel-light: #19263c;
+            --border: #28364c;
+            --text: #edf3fc;
+            --muted: #91a2bb;
+            --blue: #60a5fa;
+            --green: #34d399;
+            --orange: #fbbf24;
+            --red: #fb7185;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--text);
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        button, input { font: inherit; }
+        button { cursor: pointer; }
+        .layout { min-height: 100vh; }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 235px;
+            padding: 26px 16px;
+            background: #0e1728;
+            border-right: 1px solid var(--border);
+        }
+
+        .brand {
+            padding: 0 12px 26px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .brand-name {
+            font-size: 23px;
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+
+        .brand-name span { color: var(--blue); }
+
+        .brand-subtitle {
+            margin-top: 7px;
+            color: var(--muted);
+            font-size: 11px;
+            letter-spacing: 2px;
+        }
+
+        .nav-label {
+            margin: 28px 12px 12px;
+            color: #71829d;
+            font-size: 10px;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+
+        .nav-item {
+            display: block;
+            padding: 13px 12px;
+            margin: 5px 0;
+            color: #aab9ce;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 13px;
+        }
+
+        .nav-item.active, .nav-item:hover {
+            color: white;
+            background: #203452;
+        }
+
+        .sidebar-footer {
+            position: absolute;
+            bottom: 24px;
+            left: 28px;
+            right: 20px;
+            color: var(--muted);
+            font-size: 11px;
+            line-height: 1.8;
+        }
+
+        .main {
+            margin-left: 235px;
+            padding: 28px;
+            max-width: 1800px;
+        }
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+            margin-bottom: 28px;
+            flex-wrap: wrap;
+        }
+
+        .eyebrow {
+            color: var(--blue);
+            font-size: 11px;
+            letter-spacing: 2px;
+            font-weight: bold;
+        }
+
+        h1 {
+            margin: 8px 0;
+            font-size: clamp(24px, 3vw, 34px);
+        }
+
+        .subtitle { color: var(--muted); font-size: 13px; }
+
+        .top-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 13px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--panel);
+            font-size: 12px;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--orange);
+        }
+
+        .dot.online { background: var(--green); }
+        .dot.offline { background: var(--red); }
+
+        .btn {
+            border: 1px solid var(--border);
+            color: var(--text);
+            background: var(--panel-light);
+            padding: 11px 15px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .btn:hover { border-color: var(--blue); }
+        .btn.primary { background: #2563eb; border-color: #2563eb; }
+        .btn:disabled { opacity: .6; cursor: wait; }
+
+        .notice {
+            display: none;
+            padding: 13px 15px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            font-size: 13px;
+            line-height: 1.6;
+            overflow-wrap: anywhere;
+        }
+
+        .notice.show { display: block; }
+        .notice.error { color: #fecdd3; background: #351822; border-color: #713044; }
+        .notice.info { color: #bfdbfe; background: #142844; }
+
+        .section-heading {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin: 28px 0 15px;
+            flex-wrap: wrap;
+        }
+
+        h2 { margin: 0; font-size: 17px; }
+        .section-note { color: var(--muted); font-size: 11px; }
+
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 15px;
+        }
+
+        .metric {
+            padding: 20px;
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            min-width: 0;
+        }
+
+        .metric-label { color: var(--muted); font-size: 12px; }
+
+        .metric-value {
+            margin: 14px 0 8px;
+            font-size: clamp(23px, 2.4vw, 32px);
+            font-weight: 750;
+            overflow-wrap: anywhere;
+        }
+
+        .metric-foot { color: var(--muted); font-size: 11px; }
+        .green { color: var(--green); }
+        .blue { color: var(--blue); }
+        .orange { color: var(--orange); }
+        .red { color: var(--red); }
+
+        .capacity-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 15px;
+        }
+
+        .capacity-card {
+            padding: 20px;
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+        }
+
+        .capacity-title { font-size: 13px; font-weight: bold; }
+
+        .capacity-numbers {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 10px;
+            margin: 17px 0 12px;
+        }
+
+        .capacity-current { font-size: 25px; font-weight: bold; }
+
+        .capacity-total {
+            color: var(--muted);
+            font-size: 12px;
+            text-align: right;
+            overflow-wrap: anywhere;
+        }
+
+        .progress {
+            width: 100%;
+            height: 8px;
+            background: #27354a;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0;
+            border-radius: 10px;
+            background: var(--blue);
+            transition: width .3s ease;
+        }
+
+        .progress-bar.warning { background: var(--orange); }
+        .progress-bar.danger { background: var(--red); }
+
+        .capacity-foot {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            margin-top: 12px;
+            color: var(--muted);
+            font-size: 11px;
+        }
+
+        .panel {
+            min-width: 0;
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 18px 20px;
+            border-bottom: 1px solid var(--border);
+            flex-wrap: wrap;
+        }
+
+        .panel-title { font-size: 14px; font-weight: bold; }
+
+        .search {
+            width: min(100%, 260px);
+            padding: 10px 12px;
+            color: var(--text);
+            background: #0d1728;
+            border: 1px solid var(--border);
+            border-radius: 7px;
+            outline: none;
+        }
+
+        .search:focus { border-color: var(--blue); }
+
+        .table-wrap { width: 100%; overflow-x: auto; }
+
+        table { width: 100%; border-collapse: collapse; white-space: nowrap; }
+
+        th, td {
+            padding: 14px 17px;
+            border-bottom: 1px solid #253249;
+            text-align: left;
+            font-size: 12px;
+        }
+
+        th {
+            color: var(--muted);
+            background: #111a2b;
+            font-weight: 600;
+        }
+
+        td { color: #dbe5f4; }
+        tbody tr:hover { background: #19263a; }
+        tbody tr:last-child td { border-bottom: none; }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 9px;
+            border-radius: 20px;
+            background: #263449;
+            color: #cbd5e1;
+            font-size: 10px;
+        }
+
+        .badge.good { background: #123b31; color: #6ee7b7; }
+        .badge.warning { background: #493617; color: #fcd34d; }
+        .badge.bad { background: #481d2a; color: #fda4af; }
+
+        .empty {
+            padding: 30px 15px;
+            text-align: center;
+            color: var(--muted);
+            font-size: 12px;
+            white-space: normal;
+        }
+
+        .warehouse-details {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+            padding: 20px;
+        }
+
+        .detail {
+            padding: 13px;
+            background: #101a2b;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            min-width: 0;
+        }
+
+        .detail-label { color: var(--muted); font-size: 11px; }
+
+        .detail-value {
+            margin-top: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            overflow-wrap: anywhere;
+        }
+
+        .footer {
+            margin-top: 28px;
+            padding: 18px 0;
+            color: var(--muted);
+            border-top: 1px solid var(--border);
+            font-size: 11px;
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        @media (max-width: 1100px) {
+            .sidebar { width: 190px; }
+            .main { margin-left: 190px; padding: 22px; }
+            .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .capacity-grid { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 700px) {
+            .sidebar {
+                position: static;
+                width: 100%;
+                padding: 16px;
+            }
+
+            .brand { padding-bottom: 15px; }
+            .nav-label, .sidebar-footer { display: none; }
+
+            .nav-item {
+                display: inline-block;
+                padding: 10px;
+                margin: 5px 2px 0 0;
+            }
+
+            .main { margin-left: 0; padding: 16px; }
+            .metrics { grid-template-columns: 1fr; }
+            .warehouse-details { grid-template-columns: 1fr 1fr; }
+        }
+    </style>
+</head>
+
+<body>
+<div class="layout">
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="brand-name">LOGIX <span>AI</span></div>
+            <div class="brand-subtitle">WAREHOUSE SYSTEM</div>
+        </div>
+
+        <div class="nav-label">WORKSPACE</div>
+        <a class="nav-item active" href="#overview">▦ &nbsp; Overview</a>
+        <a class="nav-item" href="#capacity">▤ &nbsp; Capacity</a>
+        <a class="nav-item" href="#bays">▥ &nbsp; Loading Bays</a>
+        <a class="nav-item" href="#dispatches">⇧ &nbsp; Dispatches</a>
+        <a class="nav-item" href="#details">⌂ &nbsp; Warehouse Details</a>
+
+        <div class="sidebar-footer">
+            LOGIX AI Logistics Platform<br>
+            Warehouse Control Center<br>
+            <span id="sidebarConnection">Connecting to backend...</span>
+        </div>
+    </aside>
+
+    <main class="main">
+        <header class="topbar" id="overview">
+            <div>
+                <div class="eyebrow">OPERATIONS / WAREHOUSE</div>
+                <h1>Warehouse Control Center</h1>
+                <div class="subtitle">
+                    Monitor storage, loading operations and outbound dispatches.
+                </div>
+            </div>
+
+            <div class="top-actions">
+                <div class="status-indicator">
+                    <span class="dot" id="connectionDot"></span>
+                    <span id="connectionText">Connecting...</span>
+                </div>
+                <button class="btn primary" id="refreshButton" type="button">
+                    ↻ Refresh Data
+                </button>
+            </div>
+        </header>
+
+        <div class="notice" id="notice" role="status"></div>
+
+        <section>
+            <div class="section-heading">
+                <h2>Operational Overview</h2>
+                <span class="section-note" id="lastUpdated">Waiting for data...</span>
+            </div>
+
+            <div class="metrics">
+                <div class="metric">
+                    <div class="metric-label">Storage Utilization</div>
+                    <div class="metric-value blue" id="storageMetric">--</div>
+                    <div class="metric-foot" id="storageMetricFoot">Loading capacity data</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Loading Utilization</div>
+                    <div class="metric-value orange" id="loadingMetric">--</div>
+                    <div class="metric-foot" id="loadingMetricFoot">Loading capacity data</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Outbound Utilization</div>
+                    <div class="metric-value green" id="outboundMetric">--</div>
+                    <div class="metric-foot" id="outboundMetricFoot">Loading capacity data</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Warehouse Status</div>
+                    <div class="metric-value green" id="warehouseStatusMetric">--</div>
+                    <div class="metric-foot" id="warehouseStatusFoot">Checking status</div>
+                </div>
+            </div>
+        </section>
+
+        <section id="capacity">
+            <div class="section-heading">
+                <h2>Capacity Management</h2>
+                <span class="section-note">Live values from the warehouse API</span>
+            </div>
+
+            <div class="capacity-grid">
+                <div class="capacity-card">
+                    <div class="capacity-title">Storage Capacity</div>
+                    <div class="capacity-numbers">
+                        <span class="capacity-current" id="storageNumbers">--</span>
+                        <span class="capacity-total" id="storageTotal">--</span>
+                    </div>
+                    <div class="progress"><div class="progress-bar" id="storageBar"></div></div>
+                    <div class="capacity-foot">
+                        <span>Space utilization</span><span id="storagePercent">--</span>
+                    </div>
+                </div>
+
+                <div class="capacity-card">
+                    <div class="capacity-title">Loading Capacity</div>
+                    <div class="capacity-numbers">
+                        <span class="capacity-current" id="loadingNumbers">--</span>
+                        <span class="capacity-total" id="loadingTotal">--</span>
+                    </div>
+                    <div class="progress"><div class="progress-bar warning" id="loadingBar"></div></div>
+                    <div class="capacity-foot">
+                        <span>Loading utilization</span><span id="loadingPercent">--</span>
+                    </div>
+                </div>
+
+                <div class="capacity-card">
+                    <div class="capacity-title">Outbound Capacity</div>
+                    <div class="capacity-numbers">
+                        <span class="capacity-current" id="outboundNumbers">--</span>
+                        <span class="capacity-total" id="outboundTotal">--</span>
+                    </div>
+                    <div class="progress"><div class="progress-bar" id="outboundBar"></div></div>
+                    <div class="capacity-foot">
+                        <span>Outbound utilization</span><span id="outboundPercent">--</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="bays">
+            <div class="section-heading">
+                <h2>Loading Bays</h2>
+                <span class="section-note" id="bayCount">Waiting for loading bay data</span>
+            </div>
+
+            <div class="panel">
+                <div class="panel-header">
+                    <span class="panel-title">Loading Bay Operations</span>
+                    <input class="search" id="baySearch" type="search"
+                        placeholder="Search loading bays..." aria-label="Search loading bays">
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr>
+                            <th>Bay ID</th><th>Bay Name</th><th>Status</th>
+                            <th>Assigned Order</th><th>Progress</th>
+                        </tr></thead>
+                        <tbody id="bayTableBody">
+                            <tr><td colspan="5" class="empty">Loading loading bays...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section id="dispatches">
+            <div class="section-heading">
+                <h2>Outbound Dispatches</h2>
+                <span class="section-note" id="dispatchCount">Waiting for dispatch data</span>
+            </div>
+
+            <div class="panel">
+                <div class="panel-header">
+                    <span class="panel-title">Dispatch Records</span>
+                    <input class="search" id="dispatchSearch" type="search"
+                        placeholder="Search dispatches..." aria-label="Search dispatches">
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr>
+                            <th>Dispatch ID</th><th>Order</th><th>Driver</th>
+                            <th>Vehicle</th><th>Destination</th><th>Status</th>
+                        </tr></thead>
+                        <tbody id="dispatchTableBody">
+                            <tr><td colspan="6" class="empty">Loading dispatch records...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section id="details">
+            <div class="section-heading">
+                <h2>Warehouse Information</h2>
+                <span class="section-note">Registered warehouse details</span>
+            </div>
+
+            <div class="panel">
+                <div class="panel-header">
+                    <span class="panel-title" id="warehouseName">Warehouse details</span>
+                    <span class="badge" id="warehouseBadge">Checking</span>
+                </div>
+
+                <div class="warehouse-details">
+                    <div class="detail">
+                        <div class="detail-label">Warehouse Code</div>
+                        <div class="detail-value" id="warehouseCode">--</div>
+                    </div>
+                    <div class="detail">
+                        <div class="detail-label">Location</div>
+                        <div class="detail-value" id="warehouseLocation">--</div>
+                    </div>
+                    <div class="detail">
+                        <div class="detail-label">Last Updated</div>
+                        <div class="detail-value" id="warehouseUpdated">--</div>
+                    </div>
+                    <div class="detail">
+                        <div class="detail-label">Warehouse ID</div>
+                        <div class="detail-value" id="warehouseId">--</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <footer class="footer">
+            <span>LOGIX AI · Warehouse Control Center</span>
+            <span>API: http://localhost:3000</span>
+            <span id="footerRefresh">Auto-refresh enabled</span>
+        </footer>
+    </main>
+</div>
+
+<!-- Socket.IO is optional; polling works even without it. -->
+<script src="/socket.io/socket.io.js"></script>
+
+<script>
+(function () {
+    "use strict";
+
+    const API_BASE = window.location.protocol === "file:"
+        ? "http://localhost:3000"
+        : window.location.origin;
+
+    const ENDPOINTS = {
+        status: API_BASE + "/api/status",
+        warehouse: API_BASE + "/api/warehouse",
+        bays: API_BASE + "/api/warehouse/bays",
+        dispatches: API_BASE + "/api/warehouse/dispatches"
+    };
+
+    let warehouseData = null;
+    let bayData = [];
+    let dispatchData = [];
+    let refreshInProgress = false;
+    let socket = null;
+
+    const $ = id => document.getElementById(id);
+
+    function setText(id, value) {
+        const element = $(id);
+        if (!element) return;
+
+        element.textContent =
+            value === undefined || value === null || value === ""
+                ? "--"
+                : String(value);
+    }
+
+    function escapeHTML(value) {
+        return String(value ?? "")
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+    function firstValue(object, names, fallback = "--") {
+        if (object && typeof object === "object") {
+            for (const name of names) {
+                if (object[name] !== undefined &&
+                    object[name] !== null &&
+                    object[name] !== "") {
+                    return object[name];
+                }
+            }
+        }
+        return fallback;
+    }
+
+    function getArray(data, keys) {
+        if (Array.isArray(data)) return data;
+
+        if (data && typeof data === "object") {
+            for (const key of keys) {
+                if (Array.isArray(data[key])) return data[key];
+            }
+        }
+        return [];
+    }
+
+    function showNotice(message, type = "info") {
+        const notice = $("notice");
+        if (!notice) return;
+
+        notice.textContent = message;
+        notice.className = "notice show " + type;
+    }
+
+    function hideNotice() {
+        const notice = $("notice");
+        if (notice) notice.className = "notice";
+    }
+
+    function setConnection(online) {
+        const dot = $("connectionDot");
+
+        if (dot) dot.className = online ? "dot online" : "dot offline";
+
+        setText("connectionText",
+            online ? "Backend connected" : "Backend unavailable");
+
+        setText("sidebarConnection",
+            online ? "● Backend connected" : "● Backend unavailable");
+
+        const sidebar = $("sidebarConnection");
+        if (sidebar) sidebar.style.color = online ? "#34d399" : "#fb7185";
+    }
+
+    async function getJSON(url, options = {}) {
+        const response = await fetch(url, {
+            ...options,
+            headers: {
+                Accept: "application/json",
+                ...(options.headers || {})
+            },
+            cache: "no-store"
+        });
+
+        const responseText = await response.text();
+        let data = null;
+
+        if (responseText) {
+            try {
+                data = JSON.parse(responseText);
+            } catch {
+                throw new Error("Invalid JSON returned by " + url);
+            }
+        }
+
+        if (!response.ok) {
+            const message = data && (data.error || data.message)
+                ? data.error || data.message
+                : responseText.substring(0, 180);
+
+            throw new Error("HTTP " + response.status + ": " + message);
+        }
+
+        return data;
+    }
+
+    function numberText(value) {
+        const number = Number(value);
+
+        if (!Number.isFinite(number)) return String(value ?? 0);
+
+        return number.toLocaleString("en-IN", {
+            maximumFractionDigits: 2
+        });
+    }
+
+    function percentage(current, total) {
+        const used = Number(current) || 0;
+        const maximum = Number(total) || 0;
+
+        if (maximum <= 0) return 0;
+
+        return Math.max(0, Math.min(100, used / maximum * 100));
+    }
+
+    function setCapacity(prefix, current, total) {
+        const used = Number(current) || 0;
+        const maximum = Number(total) || 0;
+        const percent = percentage(used, maximum);
+        const remaining = Math.max(0, maximum - used);
+        const bar = $(prefix + "Bar");
+
+        setText(prefix + "Numbers", numberText(used));
+        setText(prefix + "Total", "of " + numberText(maximum));
+        setText(prefix + "Percent", percent.toFixed(1) + "%");
+        setText(prefix + "Metric", percent.toFixed(1) + "%");
+        setText(prefix + "MetricFoot",
+            numberText(remaining) + " capacity remaining");
+
+        if (bar) {
+            bar.style.width = percent + "%";
+            bar.className = "progress-bar";
+
+            if (percent >= 90) bar.classList.add("danger");
+            else if (percent >= 75) bar.classList.add("warning");
+        }
+    }
+
+    function formatDate(value) {
+        if (!value || value === "--") return "--";
+
+        const date = new Date(value);
+        return Number.isNaN(date.getTime())
+            ? String(value)
+            : date.toLocaleString();
+    }
+
+    function renderWarehouse(data) {
+        const warehouse = data && data.warehouse &&
+            typeof data.warehouse === "object"
+            ? data.warehouse
+            : data;
+
+        if (!warehouse || typeof warehouse !== "object" ||
+            Array.isArray(warehouse)) {
+            throw new Error("Warehouse API did not return a warehouse object.");
+        }
+
+        warehouseData = warehouse;
+
+        setCapacity("storage",
+            firstValue(warehouse, ["current_storage"], 0),
+            firstValue(warehouse, ["storage_capacity"], 0));
+
+        setCapacity("loading",
+            firstValue(warehouse, ["current_loading"], 0),
+            firstValue(warehouse, ["loading_capacity"], 0));
+
+        setCapacity("outbound",
+            firstValue(warehouse, ["current_outbound"], 0),
+            firstValue(warehouse, ["outbound_capacity"], 0));
+
+        const status = firstValue(warehouse, ["status"], "Unknown");
+        setText("warehouseStatusMetric", status);
+        setText("warehouseStatusFoot", "Warehouse operational status");
+
+        const statusElement = $("warehouseStatusMetric");
+        if (statusElement) {
+            statusElement.className = "metric-value " +
+                (/operational|active|available/i.test(String(status))
+                    ? "green"
+                    : /maintenance|busy|warning/i.test(String(status))
+                        ? "orange"
+                        : "red");
+        }
+
+        setText("warehouseName",
+            firstValue(warehouse, ["name"], "Warehouse"));
+        setText("warehouseCode",
+            firstValue(warehouse, ["warehouse_code", "code"]));
+        setText("warehouseLocation",
+            firstValue(warehouse, ["location", "address"]));
+        setText("warehouseId", firstValue(warehouse, ["id"]));
+        setText("warehouseUpdated",
+            formatDate(firstValue(warehouse, ["updated_at", "updatedAt"], null)));
+        setText("warehouseBadge", status);
+
+        const badge = $("warehouseBadge");
+        if (badge) {
+            badge.className = "badge";
+
+            if (/operational|active|available/i.test(String(status))) {
+                badge.classList.add("good");
+            } else if (/maintenance|busy|warning/i.test(String(status))) {
+                badge.classList.add("warning");
+            } else {
+                badge.classList.add("bad");
+            }
+        }
+    }
+
+    function statusBadge(value) {
+        const status = String(value ?? "Unknown");
+        let className = "badge";
+
+        if (/complete|operational|available|ready|delivered|success|dispatched/i.test(status)) {
+            className += " good";
+        } else if (/pending|progress|loading|assigned|transit|busy|processing/i.test(status)) {
+            className += " warning";
+        } else if (/failed|error|cancel|offline|blocked/i.test(status)) {
+            className += " bad";
+        }
+
+        return '<span class="' + className + '">' +
+            escapeHTML(status) + "</span>";
+    }
+
+    function renderBays(rows) {
+        bayData = rows;
+        filterBays();
+    }
+
+    function filterBays() {
+        const search = $("baySearch");
+        const body = $("bayTableBody");
+        if (!search || !body) return;
+
+        const query = search.value.toLowerCase().trim();
+
+        const filtered = bayData.filter(bay =>
+            JSON.stringify(bay).toLowerCase().includes(query));
+
+        setText("bayCount", filtered.length + " loading bay(s)");
+
+        if (!filtered.length) {
+            body.innerHTML =
+                '<tr><td colspan="5" class="empty">' +
+                (bayData.length
+                    ? "No loading bays match your search."
+                    : "No loading bays were returned by the API.") +
+                "</td></tr>";
+            return;
+        }
+
+        body.innerHTML = filtered.map(bay => {
+            const id = firstValue(bay, ["id", "bay_id", "loading_bay_id"]);
+            const name = firstValue(bay, ["name", "bay_name", "loading_bay_name"]);
+            const status = firstValue(bay, ["status", "bay_status"]);
+            const order = firstValue(bay,
+                ["order_number", "order_id", "assigned_order", "current_order"],
+                "Unassigned");
+
+            const progress = firstValue(bay,
+                ["progress", "progress_percentage", "completion_percentage",
+                 "loading_progress"], null);
+
+            let progressText = "--";
+            if (progress !== null) {
+                progressText = String(progress);
+                if (!progressText.includes("%")) progressText += "%";
+            }
+
+            return "<tr>" +
+                "<td>" + escapeHTML(id) + "</td>" +
+                "<td>" + escapeHTML(name) + "</td>" +
+                "<td>" + statusBadge(status) + "</td>" +
+                "<td>" + escapeHTML(order) + "</td>" +
+                "<td>" + escapeHTML(progressText) + "</td>" +
+                "</tr>";
+        }).join("");
+    }
+
+    function renderDispatches(rows) {
+        dispatchData = rows;
+        filterDispatches();
+    }
+
+    function filterDispatches() {
+        const search = $("dispatchSearch");
+        const body = $("dispatchTableBody");
+        if (!search || !body) return;
+
+        const query = search.value.toLowerCase().trim();
+
+        const filtered = dispatchData.filter(dispatch =>
+            JSON.stringify(dispatch).toLowerCase().includes(query));
+
+        setText("dispatchCount", filtered.length + " dispatch record(s)");
+
+        if (!filtered.length) {
+            body.innerHTML =
+                '<tr><td colspan="6" class="empty">' +
+                (dispatchData.length
+                    ? "No dispatches match your search."
+                    : "No dispatch records were returned by the API.") +
+                "</td></tr>";
+            return;
+        }
+
+        body.innerHTML = filtered.map(item => {
+            return "<tr>" +
+                "<td>" + escapeHTML(firstValue(item, ["id", "dispatch_id"])) + "</td>" +
+                "<td>" + escapeHTML(firstValue(item, ["order_number", "order_id"])) + "</td>" +
+                "<td>" + escapeHTML(firstValue(item, ["driver_name", "driver_id"])) + "</td>" +
+                "<td>" + escapeHTML(firstValue(item, ["vehicle_number", "vehicle_id"])) + "</td>" +
+                "<td>" + escapeHTML(firstValue(item, ["destination", "delivery_address", "location"])) + "</td>" +
+                "<td>" + statusBadge(firstValue(item, ["status", "dispatch_status"])) + "</td>" +
+                "</tr>";
+        }).join("");
+    }
+
+    async function loadWarehouse() {
+        renderWarehouse(await getJSON(ENDPOINTS.warehouse));
+    }
+
+    async function loadBays() {
+        const data = await getJSON(ENDPOINTS.bays);
+        renderBays(getArray(data, ["bays", "loadingBays", "loading_bays", "data"]));
+    }
+
+    async function loadDispatches() {
+        const data = await getJSON(ENDPOINTS.dispatches);
+        renderDispatches(getArray(data, ["dispatches", "records", "data"]));
+    }
+
+    async function refreshAll() {
+        if (refreshInProgress) return;
+        refreshInProgress = true;
+
+        const button = $("refreshButton");
+        if (button) {
+            button.disabled = true;
+            button.textContent = "Refreshing...";
+        }
+
+        const errors = [];
+
+        try {
+            await getJSON(ENDPOINTS.status);
+            setConnection(true);
+        } catch (error) {
+            setConnection(false);
+            errors.push("Backend: " + error.message);
+        }
+
+        try {
+            await loadWarehouse();
+        } catch (error) {
+            errors.push("Warehouse: " + error.message);
+        }
+
+        try {
+            await loadBays();
+        } catch (error) {
+            errors.push("Loading bays: " + error.message);
+            const body = $("bayTableBody");
+            if (body) {
+                body.innerHTML = '<tr><td colspan="5" class="empty">' +
+                    escapeHTML(error.message) + "</td></tr>";
+            }
+        }
+
+        try {
+            await loadDispatches();
+        } catch (error) {
+            errors.push("Dispatches: " + error.message);
+            const body = $("dispatchTableBody");
+            if (body) {
+                body.innerHTML = '<tr><td colspan="6" class="empty">' +
+                    escapeHTML(error.message) + "</td></tr>";
+            }
+        }
+
+        if (errors.length) showNotice(errors.join(" | "), "error");
+        else hideNotice();
+
+        setText("lastUpdated",
+            "Last updated: " + new Date().toLocaleTimeString());
+        setText("footerRefresh", "Auto-refresh every 15 seconds");
+
+        if (button) {
+            button.disabled = false;
+            button.textContent = "↻ Refresh Data";
+        }
+
+        refreshInProgress = false;
+    }
+
+    function connectRealtime() {
+        if (typeof window.io !== "function") {
+            setText("footerRefresh", "Auto-refresh every 15 seconds");
+            return;
+        }
+
+        try {
+            socket = window.io(API_BASE, {
+                reconnection: true,
+                reconnectionAttempts: Infinity,
+                reconnectionDelay: 1000,
+                timeout: 10000
+            });
+
+            socket.on("connect", function () {
+                setConnection(true);
+
+                socket.emit("identify", {
+                    role: "warehouse",
+                    warehouseCode: warehouseData
+                        ? warehouseData.warehouse_code
+                        : "WH-CBE-01"
+                });
+
+                refreshAll();
+            });
+
+            socket.on("disconnect", function () {
+                setConnection(false);
+            });
+
+            socket.on("connect_error", function () {
+                setText("footerRefresh",
+                    "Live updates unavailable; automatic refresh enabled");
+            });
+
+            [
+                "orderCreated",
+                "warehouseOrderCreated",
+                "orderUpdated",
+                "newDisruption",
+                "operatorDecision",
+                "loadingBayUpdated",
+                "loadingProgressUpdated",
+                "loadingCompleted",
+                "dispatchCreated",
+                "dispatchUpdated",
+                "warehouseUpdated"
+            ].forEach(eventName => socket.on(eventName, refreshAll));
+        } catch (error) {
+            console.warn("Socket.IO connection unavailable:", error);
+        }
+    }
+
+    function initializeNavigation() {
+        document.querySelectorAll(".nav-item").forEach(link => {
+            link.addEventListener("click", function () {
+                document.querySelectorAll(".nav-item").forEach(item =>
+                    item.classList.remove("active"));
+                link.classList.add("active");
+            });
+        });
+    }
+
+    function initialize() {
+        const button = $("refreshButton");
+        const baySearch = $("baySearch");
+        const dispatchSearch = $("dispatchSearch");
+
+        if (button) button.addEventListener("click", refreshAll);
+        if (baySearch) baySearch.addEventListener("input", filterBays);
+        if (dispatchSearch) dispatchSearch.addEventListener("input", filterDispatches);
+
+        initializeNavigation();
+        connectRealtime();
+        refreshAll();
+
+        window.setInterval(refreshAll, 15000);
+    }
+
+    window.LOGIXWarehouse = {
+        refresh: refreshAll,
+        loadWarehouse,
+        loadBays,
+        loadDispatches,
+        getWarehouseData: () => warehouseData,
+        getLoadingBays: () => bayData.slice(),
+        getDispatches: () => dispatchData.slice()
+    };
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", initialize);
+    } else {
+        initialize();
+    }
+})();
+</script>
+
+</body>
+</html>
+```
