@@ -1,0 +1,16 @@
+{
+  "name": "logix-ai-backend",
+  "version": "1.0.0",
+  "description": "Real-time backend for LOGIX AI logistics platform",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "socket.io": "^4.8.1",
+    "sqlite3": "^5.1.7"
+  }
+}
